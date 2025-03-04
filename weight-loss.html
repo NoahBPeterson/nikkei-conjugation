@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Weight Loss Journey</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 20px;
+            }
+            label {
+                display: block;
+                margin: 5px 0;
+            }
+            #results {
+                margin-top: 20px;
+            }
+            #chartContainer {
+                width: 80%;
+                margin: 20px 0;
+            }
+            #weeklyProjections {
+                margin-top: 20px;
+            }
+            #exerciseCalc {
+                margin-top: 20px;
+                border-top: 1px solid #ccc;
+                padding-top: 10px;
+            }
+        </style>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    </head>
+    <body>
+        <h1>Weight Loss Journey Calculator</h1>
+        <form id="weightForm">
+            <label
+                >Height (cm):
+                <input type="number" id="height" step="0.1" required
+            /></label>
+            <label
+                >Current Weight (kg):
+                <input type="number" id="weight" step="0.1" required
+            /></label>
+            <label
+                >Goal Weight (kg):
+                <input type="number" id="goalWeight" step="0.1" required
+            /></label>
+            <label
+                >Age (years): <input type="number" id="age" required
+            /></label>
+            <label
+                >Daily Calories Consumed:
+                <input type="number" id="calories" required
+            /></label>
+            <label
+                >Exercise Level:
+                <select id="exercise">
+                    <option value="1.2">Sedentary</option>
+                    <option value="1.375">Light</option>
+                    <option value="1.55">Moderate</option>
+                    <option value="1.725">Active</option>
+                    <option value="1.9">Very Active</option>
+                </select>
+            </label>
+            <div id="exerciseCalc">
+                <h3>Exercise Requirements</h3>
+                <p id="exerciseReq"></p>
+                <label>Custom Daily Exercise (optional):</label>
+                <label
+                    >Steps Walked:
+                    <input type="number" id="customSteps" min="0" step="1"
+                /></label>
+                <label
+                    >Miles Run:
+                    <input type="number" id="customMiles" min="0" step="0.1"
+                /></label>
+                <label
+                    >Stair Steps Climbed:
+                    <input type="number" id="customStairs" min="0" step="1"
+                /></label>
+                <p id="customTDEE"></p>
+            </div>
+            <label
+                >Display Granularity:
+                <select id="granularity">
+                    <option value="daily">Daily</option>
+                    <option value="weekly" selected>Weekly</option>
+                    <option value="monthly">Monthly</option>
+                </select>
+            </label>
+            <button type="submit" style="display: none">
+                Calculate Journey
+            </button>
+            <!-- Hidden, using input events -->
+        </form>
+        <div id="results"></div>
+        <div id="chartContainer">
+            <canvas id="weightChart"></canvas>
+        </div>
+        <div id="weeklyProjections"></div>
+
+        <script>
+            let chart;
+
+            const exerciseLevels = {
+                1.2: {
+                    name: "Sedentary",
+                    dailySteps: 2000,
+                    weeklySteps: 14000,
+                    dailyMiles: 0,
+                    weeklyMiles: 0,
+                    dailyStairs: 0,
+                    weeklyStairs: 0,
+                },
+                1.375: {
+                    name: "Light",
+                    dailySteps: 6000,
+                    weeklySteps: 42000,
+                    dailyMiles: 0.5,
+                    weeklyMiles: 3.5,
+                    dailyStairs: 1000,
+                    weeklyStairs: 7000,
+                },
+                1.55: {
+                    name: "Moderate",
+                    dailySteps: 9000,
+                    weeklySteps: 63000,
+                    dailyMiles: 1,
+                    weeklyMiles: 7,
+                    dailyStairs: 2000,
+                    weeklyStairs: 14000,
+                },
+                1.725: {
+                    name: "Active",
+                    dailySteps: 12000,
+                    weeklySteps: 84000,
+                    dailyMiles: 1.5,
+                    weeklyMiles: 10.5,
+                    dailyStairs: 3000,
+                    weeklyStairs: 21000,
+                },
+                1.9: {
+                    name: "Very Active",
+                    dailySteps: 15000,
+                    weeklySteps: 105000,
+                    dailyMiles: 2,
+                    weeklyMiles: 14,
+                    dailyStairs: 4000,
+                    weeklyStairs: 28000,
+                },
+            };
+
+            document
+                .getElementById("exercise")
+                .addEventListener("change", updateExerciseReq);
+            document
+                .getElementById("weightForm")
+                .addEventListener("input", function (e) {
+                    updateCustomTDEE();
+                    if (hasEnoughData()) calculateJourney(e);
+                });
+
+            function hasEnoughData() {
+                return (
+                    document.getElementById("height").value &&
+                    document.getElementById("weight").value &&
+                    document.getElementById("goalWeight").value &&
+                    document.getElementById("age").value &&
+                    document.getElementById("calories").value
+                );
+            }
+
+            function updateExerciseReq() {
+                const exercise = parseFloat(
+                    document.getElementById("exercise").value,
+                );
+                const level = exerciseLevels[exercise];
+                document.getElementById("exerciseReq").innerHTML = `
+                <strong>${level.name} Requirements:</strong><br>
+                - Daily: ${level.dailySteps} steps, ${level.dailyMiles} miles run, ${level.dailyStairs} stair steps<br>
+                - Weekly: ${level.weeklySteps} steps, ${level.weeklyMiles} miles run, ${level.weeklyStairs} stair steps
+            `;
+                updateCustomTDEE();
+            }
+
+            function updateCustomTDEE() {
+                const weight =
+                    parseFloat(document.getElementById("weight").value) || 0;
+                const height =
+                    parseFloat(document.getElementById("height").value) || 0;
+                const age =
+                    parseFloat(document.getElementById("age").value) || 0;
+                const calories =
+                    parseFloat(document.getElementById("calories").value) || 0;
+                const exercise = parseFloat(
+                    document.getElementById("exercise").value,
+                );
+                const customSteps =
+                    parseFloat(document.getElementById("customSteps").value) ||
+                    0;
+                const customMiles =
+                    parseFloat(document.getElementById("customMiles").value) ||
+                    0;
+                const customStairs =
+                    parseFloat(document.getElementById("customStairs").value) ||
+                    0;
+
+                if (weight && height && age) {
+                    const bmr = 10 * weight + 6.25 * height - 5 * age - 78;
+                    const defaultTDEE = bmr * exercise;
+                    let customMultiplier = 1.2; // Sedentary baseline
+
+                    if (customSteps > 0)
+                        customMultiplier += (customSteps / 10000) * 0.175;
+                    if (customMiles > 0) customMultiplier += customMiles * 0.35;
+                    if (customStairs > 0)
+                        customMultiplier += (customStairs / 2000) * 0.35;
+
+                    const customTDEE = bmr * customMultiplier;
+                    document.getElementById("customTDEE").innerHTML = `
+                    <strong>TDEE:</strong> Default (${exerciseLevels[exercise].name}): ${defaultTDEE.toFixed(0)} kcal/day<br>
+                    Custom (based on inputs): ${customTDEE.toFixed(0)} kcal/day<br>
+                    Deficit/Surplus: Default: ${(defaultTDEE - calories).toFixed(0)} kcal/day, Custom: ${(customTDEE - calories).toFixed(0)} kcal/day
+                `;
+                    return { defaultTDEE, customTDEE };
+                }
+            }
+
+            function calculateJourney(e) {
+                e.preventDefault();
+
+                const height = parseFloat(
+                    document.getElementById("height").value,
+                );
+                let currentWeight = parseFloat(
+                    document.getElementById("weight").value,
+                );
+                const goalWeight = parseFloat(
+                    document.getElementById("goalWeight").value,
+                );
+                const age = parseFloat(document.getElementById("age").value);
+                const calories = parseFloat(
+                    document.getElementById("calories").value,
+                );
+                const exercise = parseFloat(
+                    document.getElementById("exercise").value,
+                );
+                const granularity =
+                    document.getElementById("granularity").value;
+                const tdeeData = updateCustomTDEE();
+                const tdee = tdeeData.customTDEE || tdeeData.defaultTDEE;
+
+                let deficit = tdee - calories;
+                if (deficit <= 0) {
+                    document.getElementById("results").innerHTML =
+                        "You're not in a caloric deficit! Increase exercise or reduce calories.";
+                    document.getElementById("weeklyProjections").innerHTML = "";
+                    if (chart) chart.destroy();
+                    return;
+                }
+
+                let day = 0;
+                const labels = [];
+                const weights = [];
+                let summary = `<h2>Your Weight Loss Journey</h2>
+                           <p>Current Weight: ${currentWeight.toFixed(2)} kg</p>
+                           <p>Goal Weight: ${goalWeight.toFixed(2)} kg</p>`;
+                let projections = `<h3>${granularity.charAt(0).toUpperCase() + granularity.slice(1)} Projections:</h3><ul>`;
+
+                const currentDate = new Date("2025-03-03");
+                let trackingDate = new Date(currentDate);
+
+                labels.push(trackingDate.toDateString());
+                weights.push(currentWeight.toFixed(2));
+                projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg</li>`;
+
+                while (currentWeight > goalWeight && day < 365 * 2) {
+                    day++;
+                    const dailyLossKg = deficit / 7700;
+                    currentWeight -= dailyLossKg;
+
+                    const bmr =
+                        10 * currentWeight + 6.25 * height - 5 * age - 78;
+                    const tdeeData = updateCustomTDEE() || {
+                        customTDEE: bmr * exercise,
+                        defaultTDEE: bmr * exercise,
+                    };
+                    const tdee = tdeeData.customTDEE || tdeeData.defaultTDEE;
+                    deficit = tdee - calories;
+
+                    if (currentWeight <= goalWeight) {
+                        currentWeight = goalWeight;
+                        trackingDate = new Date(currentDate);
+                        trackingDate.setDate(currentDate.getDate() + day);
+
+                        labels.push(trackingDate.toDateString());
+                        weights.push(currentWeight.toFixed(2));
+                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg (Goal Reached!)</li>`;
+
+                        summary += `<p>Estimated Finish Date: ${trackingDate.toDateString()}</p>`;
+                        document.getElementById("results").innerHTML = summary;
+                        filterProjections(
+                            labels,
+                            weights,
+                            projections,
+                            granularity,
+                        );
+                        renderChart(labels, weights, granularity);
+                        return;
+                    }
+
+                    if (deficit <= 0) {
+                        trackingDate = new Date(currentDate);
+                        trackingDate.setDate(currentDate.getDate() + day);
+
+                        labels.push(trackingDate.toDateString());
+                        weights.push(currentWeight.toFixed(2));
+                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg (Weight loss stalled due to no deficit)</li>`;
+
+                        summary += `<p>Progress stopped due to insufficient deficit.</p>`;
+                        document.getElementById("results").innerHTML = summary;
+                        filterProjections(
+                            labels,
+                            weights,
+                            projections,
+                            granularity,
+                        );
+                        renderChart(labels, weights, granularity);
+                        return;
+                    }
+
+                    trackingDate = new Date(currentDate);
+                    trackingDate.setDate(currentDate.getDate() + day);
+
+                    if (
+                        granularity === "daily" ||
+                        (granularity === "weekly" && day % 7 === 0) ||
+                        (granularity === "monthly" &&
+                            trackingDate.getDate() === 1)
+                    ) {
+                        labels.push(trackingDate.toDateString());
+                        weights.push(currentWeight.toFixed(2));
+                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg</li>`;
+                    }
+                }
+
+                trackingDate = new Date(currentDate);
+                trackingDate.setDate(currentDate.getDate() + day);
+                summary += `<p>Estimated Finish Date: ${trackingDate.toDateString()}</p>`;
+                document.getElementById("results").innerHTML = summary;
+                filterProjections(labels, weights, projections, granularity);
+                renderChart(labels, weights, granularity);
+            }
+
+            function filterProjections(
+                labels,
+                weights,
+                projections,
+                granularity,
+            ) {
+                let filteredProjections = `<h3>${granularity.charAt(0).toUpperCase() + granularity.slice(1)} Projections:</h3><ul>`;
+                for (let i = 0; i < labels.length; i++) {
+                    filteredProjections += `<li>${labels[i]}: ${weights[i]} kg${i === labels.length - 1 ? " (Goal Reached!)" : ""}</li>`;
+                }
+                filteredProjections += "</ul>";
+                document.getElementById("weeklyProjections").innerHTML =
+                    filteredProjections;
+            }
+
+            function renderChart(labels, weights, granularity) {
+                if (chart) chart.destroy();
+                const ctx = document
+                    .getElementById("weightChart")
+                    .getContext("2d");
+                chart = new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            {
+                                label: "Weight (kg)",
+                                data: weights,
+                                borderColor: "blue",
+                                fill: false,
+                                tension: 0.1,
+                            },
+                        ],
+                    },
+                    options: {
+                        animation: {
+                            duration: 100,
+                            easing: "easeInOutExpo",
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                title: { display: true, text: "Weight (kg)" },
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text:
+                                        granularity.charAt(0).toUpperCase() +
+                                        granularity.slice(1),
+                                },
+                            },
+                        },
+                    },
+                });
+            }
+
+            updateExerciseReq(); // Initialize on load
+        </script>
+    </body>
+</html>
