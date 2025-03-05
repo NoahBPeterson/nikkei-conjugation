@@ -5,100 +5,310 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Weight Loss Journey</title>
         <style>
-            body {
-                font-family: Arial, sans-serif;
-                margin: 20px;
+            :root {
+                --primary: #4A6FA5;
+                --primary-light: #6989BC;
+                --secondary: #47B8E0;
+                --accent: #FF6B6B;
+                --dark: #252C37;
+                --light: #F5F7FA;
+                --success: #4CAF50;
+                --warning: #FF9800;
+                --gray-100: #f8f9fa;
+                --gray-200: #e9ecef;
+                --gray-300: #dee2e6;
+                --gray-600: #6c757d;
             }
+            
+            body {
+                font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+                margin: 0;
+                padding: 0;
+                background-color: var(--light);
+                color: var(--dark);
+                line-height: 1.6;
+            }
+            
+            .container {
+                max-width: 1000px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            
+            h1, h2, h3 {
+                color: var(--primary);
+                font-weight: 600;
+            }
+            
+            h1 {
+                text-align: center;
+                margin-bottom: 30px;
+                color: var(--dark);
+                position: relative;
+                padding-bottom: 15px;
+            }
+            
+            h1:after {
+                content: '';
+                position: absolute;
+                bottom: 0;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 100px;
+                height: 4px;
+                background: linear-gradient(to right, var(--primary), var(--secondary));
+                border-radius: 2px;
+            }
+            
+            .card {
+                background: white;
+                border-radius: 12px;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+                padding: 25px;
+                margin-bottom: 25px;
+                transition: transform 0.3s ease;
+            }
+            
+            .card:hover {
+                transform: translateY(-5px);
+            }
+            
             label {
                 display: block;
-                margin: 5px 0;
+                margin: 15px 0 5px;
+                color: var(--dark);
+                font-weight: 500;
             }
+            
+            input, select {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid var(--gray-300);
+                border-radius: 8px;
+                font-size: 16px;
+                transition: border 0.3s ease;
+                box-sizing: border-box;
+            }
+            
+            input:focus, select:focus {
+                outline: none;
+                border-color: var(--primary);
+                box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+            }
+            
+            .form-group {
+                margin-bottom: 16px;
+            }
+            
+            .form-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+                gap: 20px;
+            }
+            
+            .btn {
+                background: var(--primary);
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 8px;
+                cursor: pointer;
+                font-size: 16px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+                display: inline-block;
+                margin-top: 20px;
+            }
+            
+            .btn:hover {
+                background: var(--primary-light);
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            }
+            
             #results {
                 margin-top: 20px;
+                padding: 20px;
+                background-color: white;
+                border-radius: 12px;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
             }
+            
             #chartContainer {
-                width: 80%;
+                width: 100%;
                 margin: 20px 0;
+                background-color: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
             }
+            
             #weeklyProjections {
                 margin-top: 20px;
+                background-color: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
             }
+            
             #exerciseCalc {
                 margin-top: 20px;
-                border-top: 1px solid #ccc;
-                padding-top: 10px;
+                border-top: 1px solid var(--gray-300);
+                padding-top: 15px;
+            }
+            
+            .section-title {
+                position: relative;
+                display: inline-block;
+                margin-bottom: 20px;
+            }
+            
+            .section-title:after {
+                content: '';
+                position: absolute;
+                bottom: -5px;
+                left: 0;
+                width: 40px;
+                height: 3px;
+                background: linear-gradient(to right, var(--primary), var(--secondary));
+                border-radius: 1.5px;
+            }
+            
+            ul {
+                padding-left: 20px;
+            }
+            
+            li {
+                margin-bottom: 5px;
+            }
+            
+            .goal-reached {
+                color: var(--success);
+                font-weight: bold;
+            }
+            
+            .stalled {
+                color: var(--warning);
+                font-weight: bold;
+            }
+            
+            .header-bar {
+                background: linear-gradient(to right, var(--primary), var(--secondary));
+                color: white;
+                padding: 20px 0;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            
+            .header-bar h1 {
+                color: white;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .header-bar h1:after {
+                display: none;
+            }
+            
+            .info-text {
+                background-color: rgba(74, 111, 165, 0.1);
+                border-left: 4px solid var(--primary);
+                padding: 10px 15px;
+                border-radius: 0 6px 6px 0;
+                margin: 15px 0;
             }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
-        <h1>Weight Loss Journey Calculator</h1>
-        <form id="weightForm">
-            <label
-                >Height (cm):
-                <input type="number" id="height" step="0.1" required
-            /></label>
-            <label
-                >Current Weight (kg):
-                <input type="number" id="weight" step="0.1" required
-            /></label>
-            <label
-                >Goal Weight (kg):
-                <input type="number" id="goalWeight" step="0.1" required
-            /></label>
-            <label
-                >Age (years): <input type="number" id="age" required
-            /></label>
-            <label
-                >Daily Calories Consumed:
-                <input type="number" id="calories" required
-            /></label>
-            <label
-                >Exercise Level:
-                <select id="exercise">
-                    <option value="1.2">Sedentary</option>
-                    <option value="1.375">Light</option>
-                    <option value="1.55">Moderate</option>
-                    <option value="1.725">Active</option>
-                    <option value="1.9">Very Active</option>
-                </select>
-            </label>
-            <div id="exerciseCalc">
-                <h3>Exercise Requirements</h3>
-                <p id="exerciseReq"></p>
-                <label>Custom Daily Exercise (optional):</label>
-                <label
-                    >Steps Walked:
-                    <input type="number" id="customSteps" min="0" step="1"
-                /></label>
-                <label
-                    >Miles Run:
-                    <input type="number" id="customMiles" min="0" step="0.1"
-                /></label>
-                <label
-                    >Stair Steps Climbed:
-                    <input type="number" id="customStairs" min="0" step="1"
-                /></label>
-                <p id="customTDEE"></p>
-            </div>
-            <label
-                >Display Granularity:
-                <select id="granularity">
-                    <option value="daily">Daily</option>
-                    <option value="weekly" selected>Weekly</option>
-                    <option value="monthly">Monthly</option>
-                </select>
-            </label>
-            <button type="submit" style="display: none">
-                Calculate Journey
-            </button>
-            <!-- Hidden, using input events -->
-        </form>
-        <div id="results"></div>
-        <div id="chartContainer">
-            <canvas id="weightChart"></canvas>
+        <div class="header-bar">
+            <h1>Weight Loss Journey Calculator</h1>
         </div>
-        <div id="weeklyProjections"></div>
+        
+        <div class="container">
+            <div class="card">
+                <h2 class="section-title">Your Details</h2>
+                <div id="weightForm">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="height">Height (cm):</label>
+                            <input type="number" id="height" step="0.1" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="weight">Current Weight (kg):</label>
+                            <input type="number" id="weight" step="0.1" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="goalWeight">Goal Weight (kg):</label>
+                            <input type="number" id="goalWeight" step="0.1" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="age">Age (years):</label>
+                            <input type="number" id="age" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="calories">Daily Calories Consumed:</label>
+                            <input type="number" id="calories" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="exercise">Exercise Level:</label>
+                            <select id="exercise">
+                                <option value="1.2">Sedentary</option>
+                                <option value="1.375">Light</option>
+                                <option value="1.55">Moderate</option>
+                                <option value="1.725">Active</option>
+                                <option value="1.9">Very Active</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div id="exerciseCalc">
+                        <h3 class="section-title">Exercise Requirements</h3>
+                        <div class="info-text" id="exerciseReq"></div>
+                        
+                        <h3 class="section-title">Custom Daily Exercise (optional)</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="customSteps">Steps Walked:</label>
+                                <input type="number" id="customSteps" min="0" step="1" />
+                            </div>
+                            <div class="form-group">
+                                <label for="customMiles">Miles Run:</label>
+                                <input type="number" id="customMiles" min="0" step="0.1" />
+                            </div>
+                            <div class="form-group">
+                                <label for="customStairs">Stair Steps Climbed:</label>
+                                <input type="number" id="customStairs" min="0" step="1" />
+                            </div>
+                        </div>
+                        <div class="info-text" id="customTDEE"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="granularity">Display Granularity:</label>
+                        <select id="granularity">
+                            <option value="daily">Daily</option>
+                            <option value="weekly" selected>Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                    
+                    <button class="btn" style="display: none">
+                        Calculate Journey
+                    </button>
+                    <!-- Hidden, using input events -->
+                </div>
+            </div>
+            
+            <div id="results"></div>
+            
+            <div id="chartContainer">
+                <h2 class="section-title">Weight Projection Chart</h2>
+                <canvas id="weightChart"></canvas>
+            </div>
+            
+            <div id="weeklyProjections"></div>
+        </div>
 
         <script>
             let chart;
@@ -158,6 +368,9 @@
                 .getElementById("weightForm")
                 .addEventListener("input", function (e) {
                     updateCustomTDEE();
+                    if (e.target.id === "height" || e.target.id === "weight" || e.target.id === "age") {
+                        updateExerciseReq();
+                    }
                     if (hasEnoughData()) calculateJourney(e);
                 });
 
@@ -176,11 +389,62 @@
                     document.getElementById("exercise").value,
                 );
                 const level = exerciseLevels[exercise];
-                document.getElementById("exerciseReq").innerHTML = `
-                <strong>${level.name} Requirements:</strong><br>
-                - Daily: ${level.dailySteps} steps, ${level.dailyMiles} miles run, ${level.dailyStairs} stair steps<br>
-                - Weekly: ${level.weeklySteps} steps, ${level.weeklyMiles} miles run, ${level.weeklyStairs} stair steps
-            `;
+                
+                // Get user's weight, height, and age for personalized calculations
+                const weight = parseFloat(document.getElementById("weight").value) || 0;
+                const height = parseFloat(document.getElementById("height").value) || 0;
+                const age = parseFloat(document.getElementById("age").value) || 0;
+                
+                if (weight && height && age) {
+                    // Calculate BMR
+                    const bmr = 10 * weight + 6.25 * height - 5 * age - 78;
+                    
+                    // Calculate TDEE based on exercise multiplier
+                    const tdee = bmr * exercise;
+                    
+                    // Additional calories needed from exercise (beyond sedentary)
+                    const additionalCalories = tdee - (bmr * 1.2); // 1.2 is the sedentary multiplier
+                    
+                    // Calculate required steps using the formula:
+                    // steps = (calories * 1000) / ((weight) * (height / 100) * 0.31537587)
+                    const caloriesPerThousandSteps = (weight) * (height / 100) * 0.31537587;
+                    const requiredDailySteps = Math.round((additionalCalories * 1000) / caloriesPerThousandSteps);
+                    
+                    // Calculate required running miles using formula: calories = weight * miles * 1.65
+                    // So, miles = calories / (weight * 1.65)
+                    const requiredDailyMiles = (additionalCalories / (weight * 1.65)).toFixed(1);
+                    
+                    // Calculate required stair steps using formula: calories = weight * steps * 0.0013567073
+                    // So, steps = calories / (weight * 0.0013567073)
+                    const caloriesPerStairStep = weight * 0.0013567073;
+                    const requiredDailyStairs = Math.round(additionalCalories / caloriesPerStairStep);
+                    
+                    // Create HTML with calculated steps and calories
+                    let reqHTML = `<strong>${level.name} Activity Level</strong><br>`;
+                    reqHTML += `<strong>Additional Daily Calories:</strong> ${additionalCalories.toFixed(0)} kcal above sedentary level<br><br>`;
+                    
+                    reqHTML += `To achieve this activity level, you need ONE of the following daily activities (or a combination):<br>`;
+                    reqHTML += `<ul>`;
+                    reqHTML += `<li><strong>Walking:</strong> ${requiredDailySteps.toLocaleString()} steps</li>`;
+                    
+                    // Show running miles (now dynamically calculated)
+                    reqHTML += `<li><strong>Running:</strong> ${requiredDailyMiles} miles</li>`;
+                    
+                    // Show stair steps (now dynamically calculated)
+                    reqHTML += `<li><strong>Stair Climbing:</strong> ${requiredDailyStairs.toLocaleString()} stair steps</li>`;
+                    
+                    reqHTML += `</ul>`;
+                    reqHTML += `You can also combine these activities to reach your daily calorie target.`;
+                    
+                    document.getElementById("exerciseReq").innerHTML = reqHTML;
+                } else {
+                    // If we don't have enough data, show a message asking for it
+                    document.getElementById("exerciseReq").innerHTML = `
+                        <strong>${level.name} Activity Level</strong><br>
+                        <em>Enter your height, weight, and age to see personalized activity requirements</em>
+                    `;
+                }
+                
                 updateCustomTDEE();
             }
 
@@ -211,13 +475,22 @@
                     const defaultTDEE = bmr * exercise;
                     let customMultiplier = 1.2; // Sedentary baseline
 
+                    // Calculate additional calories burned through exercise
+                    let customExerciseCalories = 0;
+                    
+                    // Use the formula for step calories: (weight) * (height / 100) * (customSteps / 1000) * 0.31537587
                     if (customSteps > 0)
-                        customMultiplier += (customSteps / 10000) * 0.175;
-                    if (customMiles > 0) customMultiplier += customMiles * 0.35;
+                        customExerciseCalories += (weight) * (height / 100) * (customSteps / 1000) * 0.31537587;
+                    
+                    // Use the formula for miles run: weight * miles * 1.65
+                    if (customMiles > 0) 
+                        customExerciseCalories += weight * customMiles * 1.65;
+                    
+                    // Use the formula for stair steps: weight * steps * 0.0013567073
                     if (customStairs > 0)
-                        customMultiplier += (customStairs / 2000) * 0.35;
+                        customExerciseCalories += weight * customStairs * 0.0013567073;
 
-                    const customTDEE = bmr * customMultiplier;
+                    const customTDEE = bmr * 1.2 + customExerciseCalories; // Using sedentary multiplier + exercise calories
                     document.getElementById("customTDEE").innerHTML = `
                     <strong>TDEE:</strong> Default (${exerciseLevels[exercise].name}): ${defaultTDEE.toFixed(0)} kcal/day<br>
                     Custom (based on inputs): ${customTDEE.toFixed(0)} kcal/day<br>
@@ -254,7 +527,10 @@
                 let deficit = tdee - calories;
                 if (deficit <= 0) {
                     document.getElementById("results").innerHTML =
-                        "You're not in a caloric deficit! Increase exercise or reduce calories.";
+                        `<div class="card">
+                            <h2 class="section-title">Warning</h2>
+                            <div class="info-text stalled">You're not in a caloric deficit! Increase exercise or reduce calories.</div>
+                        </div>`;
                     document.getElementById("weeklyProjections").innerHTML = "";
                     if (chart) chart.destroy();
                     return;
@@ -263,10 +539,12 @@
                 let day = 0;
                 const labels = [];
                 const weights = [];
-                let summary = `<h2>Your Weight Loss Journey</h2>
-                           <p>Current Weight: ${currentWeight.toFixed(2)} kg</p>
-                           <p>Goal Weight: ${goalWeight.toFixed(2)} kg</p>`;
-                let projections = `<h3>${granularity.charAt(0).toUpperCase() + granularity.slice(1)} Projections:</h3><ul>`;
+                let summary = `<div class="card">
+                                <h2 class="section-title">Your Weight Loss Journey</h2>
+                                <div class="info-text">
+                                    <p><strong>Current Weight:</strong> ${currentWeight.toFixed(2)} kg</p>
+                                    <p><strong>Goal Weight:</strong> ${goalWeight.toFixed(2)} kg</p>`;
+                let projections = `<h3 class="section-title">${granularity.charAt(0).toUpperCase() + granularity.slice(1)} Projections:</h3><ul>`;
 
                 const currentDate = new Date("2025-03-03");
                 let trackingDate = new Date(currentDate);
@@ -296,9 +574,9 @@
 
                         labels.push(trackingDate.toDateString());
                         weights.push(currentWeight.toFixed(2));
-                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg (Goal Reached!)</li>`;
+                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg <span class="goal-reached">(Goal Reached!)</span></li>`;
 
-                        summary += `<p>Estimated Finish Date: ${trackingDate.toDateString()}</p>`;
+                        summary += `<p><strong>Estimated Finish Date:</strong> ${trackingDate.toDateString()}</p></div></div>`;
                         document.getElementById("results").innerHTML = summary;
                         filterProjections(
                             labels,
@@ -316,9 +594,9 @@
 
                         labels.push(trackingDate.toDateString());
                         weights.push(currentWeight.toFixed(2));
-                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg (Weight loss stalled due to no deficit)</li>`;
+                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg <span class="stalled">(Weight loss stalled due to no deficit)</span></li>`;
 
-                        summary += `<p>Progress stopped due to insufficient deficit.</p>`;
+                        summary += `<p><span class="stalled">Progress stopped due to insufficient deficit.</span></p></div></div>`;
                         document.getElementById("results").innerHTML = summary;
                         filterProjections(
                             labels,
@@ -347,7 +625,7 @@
 
                 trackingDate = new Date(currentDate);
                 trackingDate.setDate(currentDate.getDate() + day);
-                summary += `<p>Estimated Finish Date: ${trackingDate.toDateString()}</p>`;
+                summary += `<p><strong>Estimated Finish Date:</strong> ${trackingDate.toDateString()}</p></div></div>`;
                 document.getElementById("results").innerHTML = summary;
                 filterProjections(labels, weights, projections, granularity);
                 renderChart(labels, weights, granularity);
@@ -359,9 +637,9 @@
                 projections,
                 granularity,
             ) {
-                let filteredProjections = `<h3>${granularity.charAt(0).toUpperCase() + granularity.slice(1)} Projections:</h3><ul>`;
+                let filteredProjections = `<h3 class="section-title">${granularity.charAt(0).toUpperCase() + granularity.slice(1)} Projections:</h3><ul>`;
                 for (let i = 0; i < labels.length; i++) {
-                    filteredProjections += `<li>${labels[i]}: ${weights[i]} kg${i === labels.length - 1 ? " (Goal Reached!)" : ""}</li>`;
+                    filteredProjections += `<li>${labels[i]}: ${weights[i]} kg${i === labels.length - 1 ? ' <span class="goal-reached">(Goal Reached!)</span>' : ""}</li>`;
                 }
                 filteredProjections += "</ul>";
                 document.getElementById("weeklyProjections").innerHTML =
@@ -373,6 +651,7 @@
                 const ctx = document
                     .getElementById("weightChart")
                     .getContext("2d");
+                    
                 chart = new Chart(ctx, {
                     type: "line",
                     data: {
@@ -381,31 +660,74 @@
                             {
                                 label: "Weight (kg)",
                                 data: weights,
-                                borderColor: "blue",
-                                fill: false,
-                                tension: 0.1,
+                                borderColor: "#4A6FA5",
+                                backgroundColor: "rgba(74, 111, 165, 0.1)",
+                                borderWidth: 3,
+                                fill: true,
+                                tension: 0.3,
+                                pointBackgroundColor: "#FF6B6B",
+                                pointBorderColor: "#FF6B6B",
+                                pointRadius: 4,
+                                pointHoverRadius: 6,
                             },
                         ],
                     },
                     options: {
                         animation: {
-                            duration: 100,
-                            easing: "easeInOutExpo",
+                            duration: 1000,
+                            easing: "easeInOutQuart",
                         },
                         scales: {
                             y: {
                                 beginAtZero: false,
-                                title: { display: true, text: "Weight (kg)" },
+                                grid: {
+                                    color: "rgba(0,0,0,0.05)",
+                                },
+                                title: { 
+                                    display: true, 
+                                    text: "Weight (kg)",
+                                    color: "#252C37",
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
+                                },
                             },
                             x: {
+                                grid: {
+                                    color: "rgba(0,0,0,0.05)",
+                                },
                                 title: {
                                     display: true,
-                                    text:
-                                        granularity.charAt(0).toUpperCase() +
-                                        granularity.slice(1),
+                                    text: granularity.charAt(0).toUpperCase() + granularity.slice(1),
+                                    color: "#252C37",
+                                    font: {
+                                        size: 14,
+                                        weight: 'bold'
+                                    }
                                 },
                             },
                         },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    font: {
+                                        size: 14
+                                    }
+                                }
+                            },
+                            tooltip: {
+                                backgroundColor: "rgba(0,0,0,0.8)",
+                                titleFont: {
+                                    size: 16
+                                },
+                                bodyFont: {
+                                    size: 14
+                                },
+                                padding: 10,
+                                displayColors: false
+                            }
+                        }
                     },
                 });
             }
