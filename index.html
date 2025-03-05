@@ -313,6 +313,9 @@
         <script>
             let chart;
 
+            // Load saved form data when the page loads
+            window.addEventListener('DOMContentLoaded', loadFormData);
+
             const exerciseLevels = {
                 1.2: {
                     name: "Sedentary",
@@ -371,8 +374,55 @@
                     if (e.target.id === "height" || e.target.id === "weight" || e.target.id === "age") {
                         updateExerciseReq();
                     }
+                    saveFormData(); // Save form data whenever any input changes
                     if (hasEnoughData()) calculateJourney(e);
                 });
+
+            // Save form data to localStorage
+            function saveFormData() {
+                const formData = {
+                    height: document.getElementById("height").value,
+                    weight: document.getElementById("weight").value,
+                    goalWeight: document.getElementById("goalWeight").value,
+                    age: document.getElementById("age").value,
+                    calories: document.getElementById("calories").value,
+                    exercise: document.getElementById("exercise").value,
+                    customSteps: document.getElementById("customSteps").value,
+                    customMiles: document.getElementById("customMiles").value,
+                    customStairs: document.getElementById("customStairs").value,
+                    granularity: document.getElementById("granularity").value
+                };
+                
+                localStorage.setItem('weightLossJourneyData', JSON.stringify(formData));
+            }
+            
+            // Load form data from localStorage
+            function loadFormData() {
+                const savedData = localStorage.getItem('weightLossJourneyData');
+                
+                if (savedData) {
+                    const formData = JSON.parse(savedData);
+                    
+                    // Set form field values
+                    if (formData.height) document.getElementById("height").value = formData.height;
+                    if (formData.weight) document.getElementById("weight").value = formData.weight;
+                    if (formData.goalWeight) document.getElementById("goalWeight").value = formData.goalWeight;
+                    if (formData.age) document.getElementById("age").value = formData.age;
+                    if (formData.calories) document.getElementById("calories").value = formData.calories;
+                    if (formData.exercise) document.getElementById("exercise").value = formData.exercise;
+                    if (formData.customSteps) document.getElementById("customSteps").value = formData.customSteps;
+                    if (formData.customMiles) document.getElementById("customMiles").value = formData.customMiles;
+                    if (formData.customStairs) document.getElementById("customStairs").value = formData.customStairs;
+                    if (formData.granularity) document.getElementById("granularity").value = formData.granularity;
+                    
+                    // Update calculations with loaded data
+                    if (hasEnoughData()) {
+                        updateExerciseReq();
+                        updateCustomTDEE();
+                        calculateJourney(new Event('input'));
+                    }
+                }
+            }
 
             function hasEnoughData() {
                 return (
