@@ -452,7 +452,10 @@
                     // Calculate TDEE based on exercise multiplier
                     const tdee = bmr * exercise;
                     
-                    // Additional calories needed from exercise (beyond sedentary)
+                    // Total activity calories (the portion of TDEE from activity)
+                    const activityCalories = tdee - bmr;
+                    
+                    // We'll still calculate additional calories for step/running/stair calculations
                     const additionalCalories = tdee - (bmr * 1.2); // 1.2 is the sedentary multiplier
                     
                     // Calculate required steps using the formula:
@@ -471,7 +474,7 @@
                     
                     // Create HTML with calculated steps and calories
                     let reqHTML = `<strong>${level.name} Activity Level</strong><br>`;
-                    reqHTML += `<strong>Additional Daily Calories:</strong> ${additionalCalories.toFixed(0)} kcal above sedentary level<br><br>`;
+                    reqHTML += `<strong>Daily Activity Calories:</strong> ${activityCalories.toFixed(0)} kcal<br><br>`;
                     
                     reqHTML += `To achieve this activity level, you need ONE of the following daily activities (or a combination):<br>`;
                     reqHTML += `<ul>`;
