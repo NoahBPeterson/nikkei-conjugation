@@ -17,16 +17,24 @@
                 --gray-100: #f8f9fa;
                 --gray-200: #e9ecef;
                 --gray-300: #dee2e6;
+                --gray-400: #ced4da;
+                --gray-500: #adb5bd;
                 --gray-600: #6c757d;
+                --gray-700: #495057;
+                --gray-800: #343a40;
+                --radius: 0.5rem;
+                --font-sans: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+                --ring-color: rgba(74, 111, 165, 0.3);
             }
             
             body {
-                font-family: 'Segoe UI', Roboto, Helvetica, sans-serif;
+                font-family: var(--font-sans);
                 margin: 0;
                 padding: 0;
                 background-color: var(--light);
                 color: var(--dark);
                 line-height: 1.6;
+                font-size: 16px;
             }
             
             .container {
@@ -62,42 +70,62 @@
             
             .card {
                 background: white;
-                border-radius: 12px;
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
-                padding: 25px;
-                margin-bottom: 25px;
-                transition: transform 0.3s ease;
+                border-radius: var(--radius);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+                padding: 24px;
+                margin-bottom: 24px;
+                transition: box-shadow 0.3s ease, transform 0.3s ease;
+                border: 1px solid var(--gray-200);
             }
             
             .card:hover {
-                transform: translateY(-5px);
+                transform: translateY(-2px);
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             }
             
             label {
                 display: block;
-                margin: 15px 0 5px;
-                color: var(--dark);
+                margin: 8px 0 8px;
+                color: var(--gray-700);
                 font-weight: 500;
+                font-size: 1rem;
             }
             
             input, select {
                 width: 100%;
-                padding: 12px;
-                border: 2px solid var(--gray-300);
-                border-radius: 8px;
-                font-size: 16px;
-                transition: border 0.3s ease;
+                padding: 10px 14px;
+                background-color: white;
+                border: 1px solid var(--gray-300);
+                border-radius: var(--radius);
+                font-size: 1rem;
+                transition: all 0.15s ease;
                 box-sizing: border-box;
+                color: var(--gray-800);
+                line-height: 1.5;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             }
             
             input:focus, select:focus {
                 outline: none;
                 border-color: var(--primary);
-                box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+                box-shadow: 0 0 0 2px var(--ring-color);
+            }
+            
+            input:hover, select:hover {
+                border-color: var(--gray-400);
+            }
+            
+            select {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 10px center;
+                background-size: 16px;
+                padding-right: 40px;
             }
             
             .form-group {
-                margin-bottom: 16px;
+                margin-bottom: 20px;
             }
             
             .form-grid {
@@ -110,45 +138,70 @@
                 background: var(--primary);
                 color: white;
                 border: none;
-                padding: 12px 24px;
-                border-radius: 8px;
+                padding: 10px 16px;
+                border-radius: var(--radius);
                 cursor: pointer;
-                font-size: 16px;
-                font-weight: 600;
-                transition: all 0.3s ease;
-                display: inline-block;
+                font-size: 1rem;
+                font-weight: 500;
+                transition: all 0.15s ease;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
                 margin-top: 20px;
+                height: 40px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             }
             
             .btn:hover {
                 background: var(--primary-light);
-                transform: translateY(-2px);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                transform: translateY(-1px);
+                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            }
+            
+            .btn:active {
+                transform: translateY(0);
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             }
             
             #results {
                 margin-top: 20px;
                 padding: 20px;
                 background-color: white;
-                border-radius: 12px;
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+                border-radius: var(--radius);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+                border: 1px solid var(--gray-200);
+                width: 100%;
+                box-sizing: border-box;
+                overflow-x: hidden;
             }
             
             #chartContainer {
                 width: 100%;
                 margin: 20px 0;
                 background-color: white;
-                border-radius: 12px;
+                border-radius: var(--radius);
                 padding: 20px;
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+                border: 1px solid var(--gray-200);
+                box-sizing: border-box;
+                overflow-x: hidden;
+            }
+            
+            #chartContainer canvas {
+                max-width: 100%;
+                height: auto !important;
             }
             
             #weeklyProjections {
                 margin-top: 20px;
                 background-color: white;
-                border-radius: 12px;
+                border-radius: var(--radius);
                 padding: 20px;
-                box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+                border: 1px solid var(--gray-200);
+                width: 100%;
+                box-sizing: border-box;
+                overflow-x: hidden;
             }
             
             #exerciseCalc {
@@ -176,10 +229,11 @@
             
             ul {
                 padding-left: 20px;
+                font-size: 1rem;
             }
             
             li {
-                margin-bottom: 5px;
+                margin-bottom: 8px;
             }
             
             .goal-reached {
@@ -212,10 +266,16 @@
             
             .info-text {
                 background-color: rgba(74, 111, 165, 0.1);
-                border-left: 4px solid var(--primary);
-                padding: 10px 15px;
-                border-radius: 0 6px 6px 0;
-                margin: 15px 0;
+                border-left: 3px solid var(--primary);
+                padding: 12px 16px;
+                border-radius: 0 var(--radius) var(--radius) 0;
+                margin: 16px 0;
+                font-size: 1rem;
+            }
+            
+            /* These styles will help with readability in the results section */
+            #results, #weeklyProjections, #exerciseReq, #customTDEE {
+                font-size: 1rem;
             }
         </style>
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -726,6 +786,8 @@
                         ],
                     },
                     options: {
+                        responsive: true,
+                        maintainAspectRatio: true,
                         animation: {
                             duration: 1000,
                             easing: "easeInOutQuart",
@@ -759,6 +821,12 @@
                                         weight: 'bold'
                                     }
                                 },
+                                ticks: {
+                                    maxRotation: 45,
+                                    minRotation: 45,
+                                    autoSkip: true,
+                                    maxTicksLimit: 10
+                                }
                             },
                         },
                         plugins: {
