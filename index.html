@@ -3,17 +3,18 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Weight Loss Journey</title>
+		<title>Japanese Conjugation Practice</title>
         <style>
             :root {
-                --primary: #4A6FA5;
-                --primary-light: #6989BC;
-                --secondary: #47B8E0;
-                --accent: #FF6B6B;
-                --dark: #252C37;
-                --light: #F5F7FA;
-                --success: #4CAF50;
-                --warning: #FF9800;
+				--primary: #4a6fa5;
+				--primary-light: #6989bc;
+				--secondary: #47b8e0;
+				--accent: #ff6b6b;
+				--dark: #252c37;
+				--light: #f5f7fa;
+				--success: #4caf50;
+				--warning: #ff9800;
+				--danger: #f44336;
                 --gray-100: #f8f9fa;
                 --gray-200: #e9ecef;
                 --gray-300: #dee2e6;
@@ -23,849 +24,532 @@
                 --gray-700: #495057;
                 --gray-800: #343a40;
                 --radius: 0.5rem;
-                --font-sans: 'Inter', 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+				--font-sans: "Inter", "Segoe UI", Roboto, "Helvetica Neue",
+					sans-serif;
                 --ring-color: rgba(74, 111, 165, 0.3);
             }
-
             html {
                 overflow: hidden;
                 height: 100%;
             }
-            
             body {
                 overflow: auto;
                 height: 100%;
                 font-family: var(--font-sans);
                 margin: 0;
                 padding: 0;
-                background: linear-gradient(to right, var(--primary), var(--secondary));
+				background: linear-gradient(
+					to right,
+					var(--primary),
+					var(--secondary)
+				);
                 color: var(--dark);
                 line-height: 1.6;
                 font-size: 16px;
                 min-height: 100vh;
             }
-            
             .container {
-                max-width: 1000px;
-                margin: 0 auto;
-                padding: 20px;
-                margin-bottom: 60px;
+				max-width: 800px;
+				margin: 2rem auto;
+				padding: 2rem;
                 background-color: var(--light);
                 box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
                 border-radius: var(--radius);
             }
-            
-            h1, h2, h3 {
-                color: var(--primary);
-                font-weight: 600;
-            }
-            
             h1 {
                 text-align: center;
-                margin-bottom: 30px;
+				margin-bottom: 2rem;
                 color: var(--dark);
-                position: relative;
-                padding-bottom: 15px;
-            }
-            
-            h1:after {
-                content: '';
-                position: absolute;
-                bottom: 0;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 100px;
-                height: 4px;
-                background: linear-gradient(to right, var(--primary), var(--secondary));
-                border-radius: 2px;
-            }
-            
+			}
             .card {
                 background: white;
                 border-radius: var(--radius);
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-                padding: 24px;
-                margin-bottom: 24px;
-                transition: box-shadow 0.3s ease, transform 0.3s ease;
+				box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1),
+					0 1px 2px rgba(0, 0, 0, 0.06);
+				padding: 1.5rem;
+				margin-bottom: 1.5rem;
                 border: 1px solid var(--gray-200);
             }
-            
-            .card:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            }
-            
-            label {
-                display: block;
-                margin: 8px 0 8px;
+			#quiz-area .verb-display {
+				font-size: 2.5rem;
+				font-weight: bold;
+				text-align: center;
+				margin-bottom: 0.5rem;
+				color: var(--primary);
+			}
+			#quiz-area .form-display {
+				font-size: 1.5rem;
+				text-align: center;
+				margin-bottom: 1.5rem;
                 color: var(--gray-700);
-                font-weight: 500;
-                font-size: 1rem;
             }
-            
-            input, select {
+			#answer-input {
                 width: 100%;
-                padding: 10px 14px;
-                background-color: white;
+				padding: 1rem;
+				font-size: 1.25rem;
+				text-align: center;
                 border: 1px solid var(--gray-300);
                 border-radius: var(--radius);
-                font-size: 1rem;
+				box-sizing: border-box;
                 transition: all 0.15s ease;
-                box-sizing: border-box;
-                color: var(--gray-800);
-                line-height: 1.5;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
             }
-            
-            input:focus, select:focus {
+			#answer-input:focus {
                 outline: none;
                 border-color: var(--primary);
-                box-shadow: 0 0 0 2px var(--ring-color);
-            }
-            
-            input:hover, select:hover {
-                border-color: var(--gray-400);
-            }
-            
-            select {
-                appearance: none;
-                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
-                background-repeat: no-repeat;
-                background-position: right 10px center;
-                background-size: 16px;
-                padding-right: 40px;
-            }
-            
-            .form-group {
-                margin-bottom: 20px;
-            }
-            
-            .form-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-                gap: 20px;
-            }
-            
+				box-shadow: 0 0 0 3px var(--ring-color);
+			}
             .btn {
                 background: var(--primary);
                 color: white;
                 border: none;
-                padding: 10px 16px;
+				padding: 0.75rem 1.5rem;
                 border-radius: var(--radius);
                 cursor: pointer;
                 font-size: 1rem;
                 font-weight: 500;
                 transition: all 0.15s ease;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                margin-top: 20px;
-                height: 40px;
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            }
-            
+				display: block;
+				width: 100%;
+				margin-top: 1rem;
+			}
             .btn:hover {
                 background: var(--primary-light);
                 transform: translateY(-1px);
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            }
-            
-            .btn:active {
-                transform: translateY(0);
-                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-            }
-            
-            #results {
-                margin-top: 20px;
-                padding: 20px;
-                background-color: white;
+			}
+			#result-area {
+				padding: 1rem;
+				margin-top: 1rem;
                 border-radius: var(--radius);
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-                border: 1px solid var(--gray-200);
-                width: 100%;
-                box-sizing: border-box;
-                overflow-x: hidden;
-            }
-            
-            #chartContainer {
-                width: 100%;
-                margin: 20px 0;
-                background-color: white;
-                border-radius: var(--radius);
-                padding: 20px;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-                border: 1px solid var(--gray-200);
-                box-sizing: border-box;
-                overflow-x: hidden;
-            }
-            
-            #chartContainer canvas {
-                max-width: 100%;
-                height: auto !important;
-            }
-            
-            #weeklyProjections {
-                margin-top: 20px;
-                background-color: white;
-                border-radius: var(--radius);
-                padding: 20px;
-                box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
-                border: 1px solid var(--gray-200);
-                width: 100%;
-                box-sizing: border-box;
-                overflow-x: hidden;
-            }
-            
-            #exerciseCalc {
-                margin-top: 20px;
-                border-top: 1px solid var(--gray-300);
-                padding-top: 15px;
-            }
-            
-            .section-title {
-                position: relative;
-                display: inline-block;
-                margin-bottom: 20px;
-            }
-            
-            .section-title:after {
-                content: '';
-                position: absolute;
-                bottom: -5px;
-                left: 0;
-                width: 40px;
-                height: 3px;
-                background: linear-gradient(to right, var(--primary), var(--secondary));
-                border-radius: 1.5px;
-            }
-            
-            ul {
-                padding-left: 20px;
-                font-size: 1rem;
-            }
-            
-            li {
-                margin-bottom: 8px;
-            }
-            
-            .goal-reached {
+				text-align: center;
+				font-size: 1.2rem;
+				font-weight: 500;
+			}
+			.correct {
+				background-color: #e8f5e9;
                 color: var(--success);
-                font-weight: bold;
-            }
-            
-            .stalled {
-                color: var(--warning);
-                font-weight: bold;
-            }
-            
-            .header-bar {
-                background: linear-gradient(to right, var(--primary), var(--secondary));
-                color: white;
-                padding: 20px 0;
-                margin-bottom: 30px;
-                margin-top: 30px;
-            }
-            
-            .header-bar h1 {
-                color: white;
-                margin: 0;
-                padding: 0;
-            }
-            
-            .header-bar h1:after {
-                display: none;
-            }
-            
-            .info-text {
-                background-color: rgba(74, 111, 165, 0.1);
-                border-left: 3px solid var(--primary);
-                padding: 12px 16px;
-                border-radius: 0 var(--radius) var(--radius) 0;
-                margin: 16px 0;
-                font-size: 1rem;
-            }
-            
-            /* These styles will help with readability in the results section */
-            #results, #weeklyProjections, #exerciseReq, #customTDEE {
-                font-size: 1rem;
+				border: 1px solid var(--success);
+			}
+			.incorrect {
+				background-color: #ffebee;
+				color: var(--danger);
+				border: 1px solid var(--danger);
+			}
+			#settings-area .settings-grid {
+				display: grid;
+				grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+				gap: 0.5rem;
+			}
+			.checkbox-group {
+				display: flex;
+				align-items: center;
+			}
+			.checkbox-group input {
+				margin-right: 0.5rem;
+			}
+			footer {
+				text-align: center;
+				margin-top: 2rem;
+				color: var(--light);
+				font-size: 0.8rem;
+			}
+			footer a {
+				color: var(--light);
+				text-decoration: underline;
             }
         </style>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
     <body>
-        <div class="header-bar">
-            <h1>Weight Loss Journey Calculator</h1>
-        </div>
-        
         <div class="container">
-            <div class="card">
-                <h2 class="section-title">Your Details</h2>
-                <div id="weightForm">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="height">Height (cm):</label>
-                            <input type="number" id="height" step="0.1" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="weight">Current Weight (kg):</label>
-                            <input type="number" id="weight" step="0.1" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="goalWeight">Goal Weight (kg):</label>
-                            <input type="number" id="goalWeight" step="0.1" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="age">Age (years):</label>
-                            <input type="number" id="age" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="calories">Daily Calories Consumed:</label>
-                            <input type="number" id="calories" required />
-                        </div>
-                        <div class="form-group">
-                            <label for="exercise">Exercise Level:</label>
-                            <select id="exercise">
-                                <option value="1.2">Sedentary</option>
-                                <option value="1.375">Light</option>
-                                <option value="1.55">Moderate</option>
-                                <option value="1.725">Active</option>
-                                <option value="1.9">Very Active</option>
-                            </select>
-                        </div>
-                    </div>
+			<h1>Japanese Conjugation Practice</h1>
 
-                    <div id="exerciseCalc">
-                        <h3 class="section-title">Exercise Requirements</h3>
-                        <div class="info-text" id="exerciseReq"></div>
-                        
-                        <h3 class="section-title">Custom Daily Exercise (optional)</h3>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="customSteps">Steps Walked:</label>
-                                <input type="number" id="customSteps" min="0" step="1" />
-                            </div>
-                            <div class="form-group">
-                                <label for="customMiles">Miles Run:</label>
-                                <input type="number" id="customMiles" min="0" step="0.1" />
-                            </div>
-                            <div class="form-group">
-                                <label for="customStairs">Stair Steps Climbed:</label>
-                                <input type="number" id="customStairs" min="0" step="1" />
-                            </div>
-                        </div>
-                        <div class="info-text" id="customTDEE"></div>
+			<div id="quiz-area" class="card">
+				<div id="verb-display" class="verb-display">Loading verbs...</div>
+				<div id="form-display" class="form-display">Please wait.</div>
+				<form id="answer-form">
+					<input
+						type="text"
+						id="answer-input"
+						placeholder="Type your answer in hiragana"
+						autocomplete="off"
+						autofocus
+					/>
+					<button type="submit" class="btn">Check Answer</button>
+				</form>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="granularity">Display Granularity:</label>
-                        <select id="granularity">
-                            <option value="daily">Daily</option>
-                            <option value="weekly" selected>Weekly</option>
-                            <option value="monthly">Monthly</option>
-                        </select>
-                    </div>
-                    
-                    <button class="btn" style="display: none">
-                        Calculate Journey
-                    </button>
-                    <!-- Hidden, using input events -->
+			<div id="result-area" style="display: none"></div>
+
+			<div id="settings-area" class="card">
+				<h2>Settings</h2>
+				<div id="conjugation-forms" class="settings-grid">
+					<!-- Checkboxes will be inserted here by script -->
                 </div>
             </div>
-            
-            <div id="results"></div>
-            
-            <div id="chartContainer">
-                <h2 class="section-title">Weight Projection Chart</h2>
-                <canvas id="weightChart"></canvas>
             </div>
             
-            <div id="weeklyProjections"></div>
-        </div>
+		<footer>
+			<p>
+				This site uses the JMdict dictionary file. This file is the property
+				of the
+				<a
+					href="https://www.edrdg.org/"
+					target="_blank"
+					rel="noopener noreferrer"
+					>Electronic Dictionary Research and Development Group</a
+				>, and is used in conformance with the Group's
+				<a
+					href="https://www.edrdg.org/wiki/index.php/Main_Page#Licence_Statement"
+					target="_blank"
+					rel="noopener noreferrer"
+					>licence</a
+				>.
+			</p>
+		</footer>
 
         <script>
-            let chart;
+			// --- DOM Elements ---
+			const verbDisplay = document.getElementById("verb-display");
+			const formDisplay = document.getElementById("form-display");
+			const answerInput = document.getElementById("answer-input");
+			const answerForm = document.getElementById("answer-form");
+			const resultArea = document.getElementById("result-area");
+			const settingsContainer = document.getElementById("conjugation-forms");
 
-            // Load saved form data when the page loads
-            window.addEventListener('DOMContentLoaded', loadFormData);
+			// --- State ---
+			let verbs = [];
+			let currentQuestion = null;
+			const conjugationForms = {
+				polite: "Polite (e.g., 'I do')",
+				past: "Past (e.g., 'I did')",
+				te: "Te-form (for connecting verbs)",
+				negative: "Negative (e.g., 'I don't do')",
+				potential: "Potential (e.g., 'I can do')",
+				passive: "Passive (e.g., 'is done')",
+				causative: "Causative (e.g., 'to make someone do')",
+				provisional: "Provisional (e.g., 'if I do')",
+				imperative: "Imperative (e.g., 'Do it!')",
+				volitional: "Volitional (e.g., 'Let's do')",
+			};
+			let activeForms = Object.keys(conjugationForms);
 
-            const exerciseLevels = {
-                1.2: {
-                    name: "Sedentary",
-                    dailySteps: 2000,
-                    weeklySteps: 14000,
-                    dailyMiles: 0,
-                    weeklyMiles: 0,
-                    dailyStairs: 0,
-                    weeklyStairs: 0,
-                },
-                1.375: {
-                    name: "Light",
-                    dailySteps: 6000,
-                    weeklySteps: 42000,
-                    dailyMiles: 0.5,
-                    weeklyMiles: 3.5,
-                    dailyStairs: 1000,
-                    weeklyStairs: 7000,
-                },
-                1.55: {
-                    name: "Moderate",
-                    dailySteps: 9000,
-                    weeklySteps: 63000,
-                    dailyMiles: 1,
-                    weeklyMiles: 7,
-                    dailyStairs: 2000,
-                    weeklyStairs: 14000,
-                },
-                1.725: {
-                    name: "Active",
-                    dailySteps: 12000,
-                    weeklySteps: 84000,
-                    dailyMiles: 1.5,
-                    weeklyMiles: 10.5,
-                    dailyStairs: 3000,
-                    weeklyStairs: 21000,
-                },
-                1.9: {
-                    name: "Very Active",
-                    dailySteps: 15000,
-                    weeklySteps: 105000,
-                    dailyMiles: 2,
-                    weeklyMiles: 14,
-                    dailyStairs: 4000,
-                    weeklyStairs: 28000,
-                },
-            };
+			// --- Initialization ---
+			document.addEventListener("DOMContentLoaded", async () => {
+				renderSettings();
+				await loadVerbs();
+				if (verbs.length > 0) {
+					generateNewQuestion();
+				} else {
+					verbDisplay.textContent = "Error";
+					formDisplay.innerHTML = `
+						Could not load verbs from JMdict_e.xml.
+						<br>
+						<small style="font-size: 0.9rem; color: var(--gray-600);">
+							Please open the browser's developer console for details.
+							(Usually F12, or Cmd/Ctrl+Shift+I)
+						</small>
+					`;
+				}
+			});
 
-            document
-                .getElementById("exercise")
-                .addEventListener("change", updateExerciseReq);
-            document
-                .getElementById("weightForm")
-                .addEventListener("input", function (e) {
-                    updateCustomTDEE();
-                    if (e.target.id === "height" || e.target.id === "weight" || e.target.id === "age") {
-                        updateExerciseReq();
-                    }
-                    saveFormData(); // Save form data whenever any input changes
-                    if (hasEnoughData()) calculateJourney(e);
-                });
+			answerForm.addEventListener("submit", (e) => {
+				e.preventDefault();
+				checkAnswer();
+			});
 
-            // Save form data to localStorage
-            function saveFormData() {
-                const formData = {
-                    height: document.getElementById("height").value,
-                    weight: document.getElementById("weight").value,
-                    goalWeight: document.getElementById("goalWeight").value,
-                    age: document.getElementById("age").value,
-                    calories: document.getElementById("calories").value,
-                    exercise: document.getElementById("exercise").value,
-                    customSteps: document.getElementById("customSteps").value,
-                    customMiles: document.getElementById("customMiles").value,
-                    customStairs: document.getElementById("customStairs").value,
-                    granularity: document.getElementById("granularity").value
-                };
-                
-                localStorage.setItem('weightLossJourneyData', JSON.stringify(formData));
-            }
-            
-            // Load form data from localStorage
-            function loadFormData() {
-                const savedData = localStorage.getItem('weightLossJourneyData');
-                
-                if (savedData) {
-                    const formData = JSON.parse(savedData);
-                    
-                    // Set form field values
-                    if (formData.height) document.getElementById("height").value = formData.height;
-                    if (formData.weight) document.getElementById("weight").value = formData.weight;
-                    if (formData.goalWeight) document.getElementById("goalWeight").value = formData.goalWeight;
-                    if (formData.age) document.getElementById("age").value = formData.age;
-                    if (formData.calories) document.getElementById("calories").value = formData.calories;
-                    if (formData.exercise) document.getElementById("exercise").value = formData.exercise;
-                    if (formData.customSteps) document.getElementById("customSteps").value = formData.customSteps;
-                    if (formData.customMiles) document.getElementById("customMiles").value = formData.customMiles;
-                    if (formData.customStairs) document.getElementById("customStairs").value = formData.customStairs;
-                    if (formData.granularity) document.getElementById("granularity").value = formData.granularity;
-                    
-                    // Update calculations with loaded data
-                    if (hasEnoughData()) {
-                        updateExerciseReq();
-                        updateCustomTDEE();
-                        calculateJourney(new Event('input'));
-                    }
+			// --- Verbs Loading and Parsing ---
+			async function loadVerbs() {
+				const verbPOSTags = [
+                    'v1', 'v2a-s', 'v4h', 'v4r', 'v5', 'v5aru', 'v5b', 'v5g', 'v5k', 'v5k-s',
+                    'v5m', 'v5n', 'v5r', 'v5r-i', 'v5s', 'v5t', 'v5u', 'v5u-s', 'v5uru', 'v5z',
+                    'vz', 'vi', 'vk', 'vn', 'vr', 'vs', 'vs-s', 'vs-i', 'vt', 'aux-v'
+                ];
+
+				try {
+					console.log("Attempting to fetch JMdict_e.xml...");
+					const response = await fetch("JMdict_e.xml");
+					console.log(`Fetch response status: ${response.status}`);
+					if (!response.ok) {
+						throw new Error(`HTTP error! status: ${response.status}`);
+					}
+					const xmlText = await response.text();
+					console.log(`XML file loaded (${(xmlText.length / 1024 / 1024).toFixed(2)} MB). Starting pre-processing...`);
+
+					// Pre-process the XML text to replace entities, which DOMParser doesn't handle.
+					let processedXmlText = xmlText.replace(/&/g, '&amp;'); // Escape existing ampersands first
+					for (const tag of verbPOSTags) {
+						const entityRegex = new RegExp(`&amp;${tag};`, 'g');
+						processedXmlText = processedXmlText.replace(entityRegex, tag);
+					}
+					// A general fallback for any other entities we didn't list, to prevent parsing errors.
+					processedXmlText = processedXmlText.replace(/&amp;([a-z0-9-]+);/g, '$1');
+					console.log("XML pre-processing complete. Starting parse...");
+
+					const parser = new DOMParser();
+					const xmlDoc = parser.parseFromString(processedXmlText, "text/xml");
+
+					const parserError = xmlDoc.querySelector("parsererror");
+					if (parserError) {
+						console.error("XML parsing error:", parserError.textContent);
+						throw new Error("Failed to parse the XML file.");
+					}
+
+					const entries = xmlDoc.getElementsByTagName("entry");
+					console.log(`Found ${entries.length} total <entry> elements.`);
+                    let processedVerbs = 0;
+
+					for (const entry of entries) {
+						const senses = entry.getElementsByTagName("sense");
+						for (const sense of senses) {
+							const posElements = sense.getElementsByTagName("pos");
+							const posTags = Array.from(posElements).map(p => p.textContent);
+
+							const foundVerbTags = posTags.filter(pt => verbPOSTags.includes(pt));
+
+							if (foundVerbTags.length > 0) {
+								const kebElements = entry.getElementsByTagName("k_ele");
+								const rebElements = entry.getElementsByTagName("r_ele");
+								const glossElement = sense.querySelector("gloss");
+
+								if (rebElements.length > 0 && glossElement) {
+									const reading = rebElements[0].querySelector("reb").textContent;
+									const kanji = kebElements.length > 0 ? kebElements[0].querySelector("keb").textContent : reading;
+									const verbType = getVerbType(foundVerbTags, reading);
+
+									if (verbType) {
+                                        if (processedVerbs < 10) { // Log the first 10 verbs we successfully classify
+                                            console.log(`SUCCESS: Classified [${kanji}/${reading}] as [${verbType}] with tags:`, foundVerbTags);
+                                        }
+										verbs.push({
+											kanji: kanji,
+											reading: reading,
+											english: glossElement.textContent.split(';')[0],
+											type: verbType,
+											dictForm: kanji || reading,
+										});
+                                        processedVerbs++;
+										break; 
+									}
+								}
+							}
+						}
+					}
+					console.log(`--- PARSING COMPLETE ---`);
+                    console.log(`Found and successfully classified ${verbs.length} verbs.`);
+					if (verbs.length > 0) {
+						console.log("First verb found:", verbs[0]);
+					} else {
+						console.warn("Parsing finished, but no verbs were added. This indicates an issue with the getVerbType logic or XML structure not matching expectations.");
+					}
+				} catch (error) {
+					console.error("Fatal error in loadVerbs:", error);
+                    verbDisplay.textContent = "Fatal Error";
+                    formDisplay.innerHTML = `An error occurred while loading verbs. <br><small>${error.message}</small>`;
+				}
+			}
+
+			function getVerbType(posTags, reading) {
+				if (!reading) {
+                    console.warn("Skipping verb because it has no reading:", posTags);
+                    return null;
                 }
-            }
 
-            function hasEnoughData() {
-                return (
-                    document.getElementById("height").value &&
-                    document.getElementById("weight").value &&
-                    document.getElementById("goalWeight").value &&
-                    document.getElementById("age").value &&
-                    document.getElementById("calories").value
-                );
-            }
+				if (posTags.includes("v1") || posTags.includes("vz")) return "ichidan";
+				
+				if (posTags.some(p => p && p.startsWith("v5"))) {
+					const ending = reading.slice(-1);
+					if ("うくぐすつぬぶむる".includes(ending)) {
+						return `godan-${ending}`;
+					} else {
+                        console.warn(`Found godan verb with unhandled ending '${ending}'`, {reading, posTags});
+                        return null; // Don't classify if ending is not standard
+                    }
+				}
+				
+				if (posTags.some(p => p && p.startsWith("vs"))) return "suru";
+				if (posTags.includes("vk")) return "kuru";
 
-            function updateExerciseReq() {
-                const exercise = parseFloat(
-                    document.getElementById("exercise").value,
-                );
-                const level = exerciseLevels[exercise];
-                
-                // Get user's weight, height, and age for personalized calculations
-                const weight = parseFloat(document.getElementById("weight").value) || 0;
-                const height = parseFloat(document.getElementById("height").value) || 0;
-                const age = parseFloat(document.getElementById("age").value) || 0;
-                
-                if (weight && height && age) {
-                    // Calculate BMR
-                    const bmr = 10 * weight + 6.25 * height - 5 * age - 78;
-                    
-                    // Calculate TDEE based on exercise multiplier
-                    const tdee = bmr * exercise;
-                    
-                    // Total activity calories (the portion of TDEE from activity)
-                    const activityCalories = tdee - bmr;
-                    
-                    // We'll still calculate additional calories for step/running/stair calculations
-                    const additionalCalories = tdee - (bmr * 1.2); // 1.2 is the sedentary multiplier
-                    
-                    // Calculate required steps using the formula:
-                    // steps = (calories * 1000) / ((weight) * (height / 100) * 0.31537587)
-                    const caloriesPerThousandSteps = (weight) * (height / 100) * 0.31537587;
-                    const requiredDailySteps = Math.round((additionalCalories * 1000) / caloriesPerThousandSteps);
-                    
-                    // Calculate required running miles using formula: calories = weight * miles * 1.65
-                    // So, miles = calories / (weight * 1.65)
-                    const requiredDailyMiles = (additionalCalories / (weight * 1.65)).toFixed(1);
-                    
-                    // Calculate required stair steps using formula: calories = weight * steps * 0.0013567073
-                    // So, steps = calories / (weight * 0.0013567073)
-                    const caloriesPerStairStep = weight * 0.0013567073;
-                    const requiredDailyStairs = Math.round(additionalCalories / caloriesPerStairStep);
-                    
-                    // Create HTML with calculated steps and calories
-                    let reqHTML = `<strong>${level.name} Activity Level</strong><br>`;
-                    reqHTML += `<strong>Daily Activity Calories:</strong> ${activityCalories.toFixed(0)} kcal<br><br>`;
-                    
-                    reqHTML += `To achieve this activity level, you need ONE of the following daily activities (or a combination):<br>`;
-                    reqHTML += `<ul>`;
-                    reqHTML += `<li><strong>Walking:</strong> ${requiredDailySteps.toLocaleString()} steps</li>`;
-                    
-                    // Show running miles (now dynamically calculated)
-                    reqHTML += `<li><strong>Running:</strong> ${requiredDailyMiles} miles</li>`;
-                    
-                    // Show stair steps (now dynamically calculated)
-                    reqHTML += `<li><strong>Stair Climbing:</strong> ${requiredDailyStairs.toLocaleString()} stair steps</li>`;
-                    
-                    reqHTML += `</ul>`;
-                    reqHTML += `You can also combine these activities to reach your daily calorie target.`;
-                    
-                    document.getElementById("exerciseReq").innerHTML = reqHTML;
+                // This is not an error, just a verb type we don't handle (e.g. aux-v)
+				return null;
+			}
+
+			// --- Settings ---
+			function renderSettings() {
+				settingsContainer.innerHTML = "";
+				for (const [key, value] of Object.entries(conjugationForms)) {
+					const div = document.createElement("div");
+					div.className = "checkbox-group";
+					const checkbox = document.createElement("input");
+					checkbox.type = "checkbox";
+					checkbox.id = `check-${key}`;
+					checkbox.value = key;
+					checkbox.checked = true;
+					checkbox.addEventListener("change", updateActiveForms);
+					const label = document.createElement("label");
+					label.htmlFor = `check-${key}`;
+					label.textContent = value;
+					div.appendChild(checkbox);
+					div.appendChild(label);
+					settingsContainer.appendChild(div);
+				}
+			}
+
+			function updateActiveForms() {
+				activeForms = Array.from(
+					settingsContainer.querySelectorAll("input:checked"),
+				).map((cb) => cb.value);
+				if (activeForms.length === 0) {
+					// Fallback to all forms if none are selected
+					activeForms = Object.keys(conjugationForms);
+				}
+			}
+
+			// --- Quiz Logic ---
+			function generateNewQuestion() {
+				resultArea.style.display = "none";
+				answerInput.value = "";
+				answerInput.focus();
+
+				const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+				const randomFormKey =
+					activeForms[Math.floor(Math.random() * activeForms.length)];
+
+				currentQuestion = {
+					verb: randomVerb,
+					form: randomFormKey,
+					answer: conjugate(randomVerb, randomFormKey),
+				};
+
+				verbDisplay.textContent = `${randomVerb.dictForm} (${randomVerb.english})`;
+				formDisplay.textContent = conjugationForms[randomFormKey];
+			}
+
+			function checkAnswer() {
+				const userAnswer = answerInput.value.trim();
+				if (!userAnswer) return;
+
+				resultArea.style.display = "block";
+				if (userAnswer === currentQuestion.answer) {
+					resultArea.textContent = `Correct!`;
+					resultArea.className = "correct";
                 } else {
-                    // If we don't have enough data, show a message asking for it
-                    document.getElementById("exerciseReq").innerHTML = `
-                        <strong>${level.name} Activity Level</strong><br>
-                        <em>Enter your height, weight, and age to see personalized activity requirements</em>
-                    `;
-                }
-                
-                updateCustomTDEE();
-            }
+					resultArea.innerHTML = `Incorrect. The correct answer is: <strong>${currentQuestion.answer}</strong>`;
+					resultArea.className = "incorrect";
+				}
+				setTimeout(generateNewQuestion, 2000);
+			}
 
-            function updateCustomTDEE() {
-                const weight =
-                    parseFloat(document.getElementById("weight").value) || 0;
-                const height =
-                    parseFloat(document.getElementById("height").value) || 0;
-                const age =
-                    parseFloat(document.getElementById("age").value) || 0;
-                const calories =
-                    parseFloat(document.getElementById("calories").value) || 0;
-                const exercise = parseFloat(
-                    document.getElementById("exercise").value,
-                );
-                const customSteps =
-                    parseFloat(document.getElementById("customSteps").value) ||
-                    0;
-                const customMiles =
-                    parseFloat(document.getElementById("customMiles").value) ||
-                    0;
-                const customStairs =
-                    parseFloat(document.getElementById("customStairs").value) ||
-                    0;
+			// --- Conjugation Engine ---
+			function conjugate(verb, form) {
+				const { type, reading } = verb;
+				if (!reading) return verb.dictForm;
 
-                if (weight && height && age) {
-                    const bmr = 10 * weight + 6.25 * height - 5 * age - 78;
-                    const defaultTDEE = bmr * exercise;
-                    let customMultiplier = 1.2; // Sedentary baseline
+				if (type === "suru") {
+					// Use kanji stem if it exists and makes sense, otherwise it's just a loan word + suru
+					const base = verb.kanji.endsWith('する') ? verb.kanji.replace(/する$/, "") : verb.dictForm.replace(/する$/, "");
+					switch (form) {
+						case "polite": return base + "します";
+						case "past": return base + "した";
+						case "te": return base + "して";
+						case "negative": return base + "しない";
+						case "potential": return base + "できる";
+						case "passive": return base + "される";
+						case "causative": return base + "させる";
+						case "provisional": return base + "すれば";
+						case "imperative": return base + "しろ"; // or せよ
+						case "volitional": return base + "しよう";
+						default: return verb.dictForm;
+					}
+				}
 
-                    // Calculate additional calories burned through exercise
-                    let customExerciseCalories = 0;
-                    
-                    // Use the formula for step calories: (weight) * (height / 100) * (customSteps / 1000) * 0.31537587
-                    if (customSteps > 0)
-                        customExerciseCalories += (weight) * (height / 100) * (customSteps / 1000) * 0.31537587;
-                    
-                    // Use the formula for miles run: weight * miles * 1.65
-                    if (customMiles > 0) 
-                        customExerciseCalories += weight * customMiles * 1.65;
-                    
-                    // Use the formula for stair steps: weight * steps * 0.0013567073
-                    if (customStairs > 0)
-                        customExerciseCalories += weight * customStairs * 0.0013567073;
+				if (type === "kuru") {
+					const base = verb.kanji === '来る' ? '来' : '';
+					if(base) {
+						switch (form) {
+							case "polite": return base + "ます"; // きます
+							case "past": return base + "た"; // きた
+							case "te": return base + "て"; // きて
+							case "negative": return "こない";
+							case "potential": return "こられる";
+							case "passive": return "こられる";
+							case "causative": return "こさせる";
+							case "provisional": return "くれば";
+							case "imperative": return "こい";
+							case "volitional": return "こよう";
+							default: return verb.dictForm;
+						}
+					}
+					// fallback to kana if no kanji base
+					switch (form) {
+						case "polite": return "きます";
+						case "past": return "きた";
+						case "te": return "きて";
+						case "negative": return "こない";
+						case "potential": return "こられる";
+						case "passive": return "こられる";
+						case "causative": return "こさせる";
+						case "provisional": return "くれば";
+						case "imperative": return "こい";
+						case "volitional": return "こよう";
+						default: return verb.dictForm;
+					}
+				}
 
-                    const customTDEE = bmr * 1.2 + customExerciseCalories; // Using sedentary multiplier + exercise calories
-                    document.getElementById("customTDEE").innerHTML = `
-                    <strong>TDEE:</strong> Default (${exerciseLevels[exercise].name}): ${defaultTDEE.toFixed(0)} kcal/day<br>
-                    Custom (based on inputs): ${customTDEE.toFixed(0)} kcal/day<br>
-                    Deficit/Surplus: Default: ${(defaultTDEE - calories).toFixed(0)} kcal/day, Custom: ${(customTDEE - calories).toFixed(0)} kcal/day
-                `;
-                    return { defaultTDEE, customTDEE };
-                }
-            }
+				if (type === "ichidan") {
+					const base = verb.dictForm.slice(0, -1);
+					switch (form) {
+						case "polite": return base + "ます";
+						case "past": return base + "た";
+						case "te": return base + "て";
+						case "negative": return base + "ない";
+						case "potential": return base + "られる";
+						case "passive": return base + "られる";
+						case "causative": return base + "させる";
+						case "provisional": return base + "れば";
+						case "imperative": return base + "ろ"; // or よ
+						case "volitional": return base + "よう";
+						default: return verb.dictForm;
+					}
+				}
 
-            function calculateJourney(e) {
-                e.preventDefault();
+				if (type.startsWith("godan")) {
+					const ending = type.split("-")[1];
+					const base = verb.dictForm.slice(0, -1);
+					const endings = {
+						u: { a: "わ", i: "い", e: "え", o: "お", te: "って", ta: "った" },
+						ku: { a: "か", i: "き", e: "け", o: "こ", te: "いて", ta: "いた" },
+						gu: { a: "が", i: "ぎ", e: "げ", o: "ご", te: "いで", ta: "いだ" },
+						su: { a: "さ", i: "し", e: "せ", o: "そ", te: "して", ta: "した" },
+						tsu: { a: "た", i: "ち", e: "て", o: "と", te: "って", ta: "った" },
+						nu: { a: "な", i: "に", e: "ね", o: "の", te: "んで", ta: "んだ" },
+						bu: { a: "ば", i: "び", e: "べ", o: "ぼ", te: "んで", ta: "んだ" },
+						mu: { a: "ま", i: "み", e: "め", o: "も", te: "んで", ta: "んだ" },
+						ru: { a: "ら", i: "り", e: "れ", o: "ろ", te: "って", ta: "った" },
+					};
+					// special case for 行く
+					if (verb.reading === 'いく' && (form === 'te' || form === 'past')) {
+						return base + (form === 'te' ? 'って' : 'った');
+					}
+					
+					const e = endings[ending];
+					if (!e) return verb.dictForm; // Should not happen
 
-                const height = parseFloat(
-                    document.getElementById("height").value,
-                );
-                let currentWeight = parseFloat(
-                    document.getElementById("weight").value,
-                );
-                const goalWeight = parseFloat(
-                    document.getElementById("goalWeight").value,
-                );
-                const age = parseFloat(document.getElementById("age").value);
-                const calories = parseFloat(
-                    document.getElementById("calories").value,
-                );
-                const exercise = parseFloat(
-                    document.getElementById("exercise").value,
-                );
-                const granularity =
-                    document.getElementById("granularity").value;
-                const tdeeData = updateCustomTDEE();
-                const tdee = tdeeData.customTDEE || tdeeData.defaultTDEE;
-
-                let deficit = tdee - calories;
-                if (deficit <= 0) {
-                    document.getElementById("results").innerHTML =
-                        `<div class="card">
-                            <h2 class="section-title">Warning</h2>
-                            <div class="info-text stalled">You're not in a caloric deficit! Increase exercise or reduce calories.</div>
-                        </div>`;
-                    document.getElementById("weeklyProjections").innerHTML = "";
-                    if (chart) chart.destroy();
-                    return;
-                }
-
-                let day = 0;
-                const labels = [];
-                const weights = [];
-                let summary = `<div class="card">
-                                <h2 class="section-title">Your Weight Loss Journey</h2>
-                                <div class="info-text">
-                                    <p><strong>Current Weight:</strong> ${currentWeight.toFixed(2)} kg</p>
-                                    <p><strong>Goal Weight:</strong> ${goalWeight.toFixed(2)} kg</p>`;
-                let projections = `<h3 class="section-title">${granularity.charAt(0).toUpperCase() + granularity.slice(1)} Projections:</h3><ul>`;
-
-                const currentDate = new Date();
-                let trackingDate = new Date(currentDate);
-
-                labels.push(trackingDate.toDateString());
-                weights.push(currentWeight.toFixed(2));
-                projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg</li>`;
-
-                while (currentWeight > goalWeight && day < 365 * 2) {
-                    day++;
-                    const dailyLossKg = deficit / 7700;
-                    currentWeight -= dailyLossKg;
-
-                    const bmr =
-                        10 * currentWeight + 6.25 * height - 5 * age - 78;
-                    const tdeeData = updateCustomTDEE() || {
-                        customTDEE: bmr * exercise,
-                        defaultTDEE: bmr * exercise,
-                    };
-                    const tdee = tdeeData.customTDEE || tdeeData.defaultTDEE;
-                    deficit = tdee - calories;
-
-                    if (currentWeight <= goalWeight) {
-                        currentWeight = goalWeight;
-                        trackingDate = new Date(currentDate);
-                        trackingDate.setDate(currentDate.getDate() + day);
-
-                        labels.push(trackingDate.toDateString());
-                        weights.push(currentWeight.toFixed(2));
-                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg <span class="goal-reached">(Goal Reached!)</span></li>`;
-
-                        summary += `<p><strong>Estimated Finish Date:</strong> ${trackingDate.toDateString()}</p></div></div>`;
-                        document.getElementById("results").innerHTML = summary;
-                        filterProjections(
-                            labels,
-                            weights,
-                            projections,
-                            granularity,
-                        );
-                        renderChart(labels, weights, granularity);
-                        return;
-                    }
-
-                    if (deficit <= 0) {
-                        trackingDate = new Date(currentDate);
-                        trackingDate.setDate(currentDate.getDate() + day);
-
-                        labels.push(trackingDate.toDateString());
-                        weights.push(currentWeight.toFixed(2));
-                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg <span class="stalled">(Weight loss stalled due to no deficit)</span></li>`;
-
-                        summary += `<p><span class="stalled">Progress stopped due to insufficient deficit.</span></p></div></div>`;
-                        document.getElementById("results").innerHTML = summary;
-                        filterProjections(
-                            labels,
-                            weights,
-                            projections,
-                            granularity,
-                        );
-                        renderChart(labels, weights, granularity);
-                        return;
-                    }
-
-                    trackingDate = new Date(currentDate);
-                    trackingDate.setDate(currentDate.getDate() + day);
-
-                    if (
-                        granularity === "daily" ||
-                        (granularity === "weekly" && day % 7 === 0) ||
-                        (granularity === "monthly" &&
-                            trackingDate.getDate() === 1)
-                    ) {
-                        labels.push(trackingDate.toDateString());
-                        weights.push(currentWeight.toFixed(2));
-                        projections += `<li>${trackingDate.toDateString()}: ${currentWeight.toFixed(2)} kg</li>`;
-                    }
-                }
-
-                trackingDate = new Date(currentDate);
-                trackingDate.setDate(currentDate.getDate() + day);
-                summary += `<p><strong>Estimated Finish Date:</strong> ${trackingDate.toDateString()}</p></div></div>`;
-                document.getElementById("results").innerHTML = summary;
-                filterProjections(labels, weights, projections, granularity);
-                renderChart(labels, weights, granularity);
-            }
-
-            function filterProjections(
-                labels,
-                weights,
-                projections,
-                granularity,
-            ) {
-                let filteredProjections = `<h3 class="section-title">${granularity.charAt(0).toUpperCase() + granularity.slice(1)} Projections:</h3><ul>`;
-                for (let i = 0; i < labels.length; i++) {
-                    filteredProjections += `<li>${labels[i]}: ${weights[i]} kg${i === labels.length - 1 ? ' <span class="goal-reached">(Goal Reached!)</span>' : ""}</li>`;
-                }
-                filteredProjections += "</ul>";
-                document.getElementById("weeklyProjections").innerHTML =
-                    filteredProjections;
-            }
-
-            function renderChart(labels, weights, granularity) {
-                if (chart) chart.destroy();
-                const ctx = document
-                    .getElementById("weightChart")
-                    .getContext("2d");
-                    
-                chart = new Chart(ctx, {
-                    type: "line",
-                    data: {
-                        labels: labels,
-                        datasets: [
-                            {
-                                label: "Weight (kg)",
-                                data: weights,
-                                borderColor: "#4A6FA5",
-                                backgroundColor: "rgba(74, 111, 165, 0.1)",
-                                borderWidth: 3,
-                                fill: true,
-                                tension: 0.3,
-                                pointBackgroundColor: "#FF6B6B",
-                                pointBorderColor: "#FF6B6B",
-                                pointRadius: 4,
-                                pointHoverRadius: 6,
-                            },
-                        ],
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        animation: {
-                            duration: 1000,
-                            easing: "easeInOutQuart",
-                        },
-                        scales: {
-                            y: {
-                                beginAtZero: false,
-                                grid: {
-                                    color: "rgba(0,0,0,0.05)",
-                                },
-                                title: { 
-                                    display: true, 
-                                    text: "Weight (kg)",
-                                    color: "#252C37",
-                                    font: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    }
-                                },
-                            },
-                            x: {
-                                grid: {
-                                    color: "rgba(0,0,0,0.05)",
-                                },
-                                title: {
-                                    display: true,
-                                    text: granularity.charAt(0).toUpperCase() + granularity.slice(1),
-                                    color: "#252C37",
-                                    font: {
-                                        size: 14,
-                                        weight: 'bold'
-                                    }
-                                },
-                                ticks: {
-                                    maxRotation: 45,
-                                    minRotation: 45,
-                                    autoSkip: true,
-                                    maxTicksLimit: 10
-                                }
-                            },
-                        },
-                        plugins: {
-                            legend: {
-                                labels: {
-                                    font: {
-                                        size: 14
-                                    }
-                                }
-                            },
-                            tooltip: {
-                                backgroundColor: "rgba(0,0,0,0.8)",
-                                titleFont: {
-                                    size: 16
-                                },
-                                bodyFont: {
-                                    size: 14
-                                },
-                                padding: 10,
-                                displayColors: false
-                            }
-                        }
-                    },
-                });
-            }
-
-            updateExerciseReq(); // Initialize on load
+					switch (form) {
+						case "polite": return base + e.i + "ます";
+						case "past": return base + e.ta;
+						case "te": return base + e.te;
+						case "negative": return base + e.a + "ない";
+						case "potential": return base + e.e + "る";
+						case "passive": return base + e.a + "れる";
+						case "causative": return base + e.a + "せる";
+						case "provisional": return base + e.e + "ば";
+						case "imperative": return base + e.e;
+						case "volitional": return base + e.o + "う";
+						default: return verb.dictForm;
+					}
+				}
+				
+				return verb.dictForm; // Fallback
+			}
         </script>
     </body>
 </html>
