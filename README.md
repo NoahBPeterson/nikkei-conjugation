@@ -1,50 +1,56 @@
 # Nikkei Conjugation Practice
 
-This is a simple, single-page web application for practicing Japanese verb conjugations. It uses the JMDict dictionary file to source its verbs and provides a clean interface for drilling various grammatical forms.
+This is a simple, single-page web application for practicing Japanese verb conjugations. It uses a pre-processed and compressed JSON file derived from the JMDict dictionary file to source its verbs, providing a clean and fast interface for drilling various grammatical forms.
 
 ## Features
 
 -   Randomly selects verbs from a comprehensive dictionary.
 -   Quizzes on multiple conjugation forms (Polite, Past, Negative, etc.).
 -   Simple, intuitive interface.
+-   **Extremely fast loading** thanks to a pre-compiled and compressed Gzip file (`.json.gz`).
 -   Settings panel to select which conjugation forms to practice.
--   Runs entirely in the browser after initial setup.
+-   Runs entirely in the browser after an initial build step.
 
 ## Setup and Installation
 
-To run this website locally, you need two files in the same directory:
-1.  `index.html` (this repository's main file)
-2.  `JMdict_e.xml` (the dictionary data file)
+The setup process involves a one-time build step to convert the large `JMdict_e.xml` dictionary file into a compact, compressed `verbs.json.gz` file that the web application uses.
 
 ### 1. Download the Dictionary File
 
-The application requires the English-only version of the JMdict file to function.
+First, you need the English-only version of the JMdict file.
 
 -   Go to the official JMDict Project website: [https://www.edrdg.org/jmdict/j_jmdict.html](https://www.edrdg.org/jmdict/j_jmdict.html)
 -   Find the link for **"the current version with only the English translations"** and download it.
--   Rename the downloaded file to `JMdict_e.xml` and place it in the same directory as `index.html`.
+-   Rename the downloaded file to `JMdict_e.xml` and place it in the project's root directory.
 
-### 2. Run a Local Web Server
+### 2. Install Dependencies and Build
 
-Because of web browser security policies (CORS), you cannot simply open `index.html` directly from your filesystem. You must serve it via a local web server.
+With `JMdict_e.xml` in your project folder, you can now generate the compressed verb file. You will need [Bun](https://bun.sh/) installed for these commands.
 
-If you have Bun installed, you can easily do this with the following command from your project directory:
+First, install the necessary script dependencies (`xml-js` for parsing and `pako` for compression):
+```bash
+bun install
+```
+
+Next, run the build script:
+```bash
+bun build.js
+```
+This will read the large XML file, create an intermediate `verbs.json` file, and finally produce a much smaller, compressed `verbs.json.gz`. This may take a few moments.
+
+### 3. Run the Local Web Server
+
+Because of web browser security policies, you must serve the files via a local web server.
 
 ```bash
 bunx http-server
 ```
 
-This will start a server. It will print the local addresses where the site is available, typically:
+This will start a server and print the local addresses where the site is available (e.g., `http://localhost:8080`).
 
-```
-Available on:
-  http://127.0.0.1:8080
-  http://<your-local-ip>:8080
-```
+### 4. Open in Browser
 
-### 3. Open in Browser
-
-Open your web browser and navigate to [http://localhost:8080](http://localhost:8080). The application should load, parse the dictionary file, and present you with your first conjugation question.
+Open your web browser and navigate to [http://localhost:8080](http://localhost:8080). The application should load the tiny compressed file almost instantly, decompress it, and present you with your first conjugation question.
 
 ## License
 

@@ -206,7 +206,8 @@
 			</p>
 		</footer>
 
-        <script>
+		<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+		<script>
 			// --- DOM Elements ---
 			const verbDisplay = document.getElementById("verb-display");
 			const formDisplay = document.getElementById("form-display");
@@ -258,118 +259,25 @@
 
 			// --- Verbs Loading and Parsing ---
 			async function loadVerbs() {
-				const verbPOSTags = [
-                    'v1', 'v2a-s', 'v4h', 'v4r', 'v5', 'v5aru', 'v5b', 'v5g', 'v5k', 'v5k-s',
-                    'v5m', 'v5n', 'v5r', 'v5r-i', 'v5s', 'v5t', 'v5u', 'v5u-s', 'v5uru', 'v5z',
-                    'vz', 'vi', 'vk', 'vn', 'vr', 'vs', 'vs-s', 'vs-i', 'vt', 'aux-v'
-                ];
-
 				try {
-					console.log("Attempting to fetch JMdict_e.xml...");
-					const response = await fetch("JMdict_e.xml");
-					console.log(`Fetch response status: ${response.status}`);
+					console.log("Attempting to fetch verbs.json.gz...");
+					const response = await fetch("verbs.json.gz");
 					if (!response.ok) {
 						throw new Error(`HTTP error! status: ${response.status}`);
 					}
-					const xmlText = await response.text();
-					console.log(`XML file loaded (${(xmlText.length / 1024 / 1024).toFixed(2)} MB). Starting pre-processing...`);
+					
+					const compressedData = await response.arrayBuffer();
+					console.log(`Fetched compressed data (${(compressedData.byteLength / 1024).toFixed(2)} KB). Decompressing...`);
+					
+					const decompressed = pako.inflate(compressedData, { to: 'string' });
+					verbs = JSON.parse(decompressed);
 
-					// Pre-process the XML text to replace entities, which DOMParser doesn't handle.
-					let processedXmlText = xmlText.replace(/&/g, '&amp;'); // Escape existing ampersands first
-					for (const tag of verbPOSTags) {
-						const entityRegex = new RegExp(`&amp;${tag};`, 'g');
-						processedXmlText = processedXmlText.replace(entityRegex, tag);
-					}
-					// A general fallback for any other entities we didn't list, to prevent parsing errors.
-					processedXmlText = processedXmlText.replace(/&amp;([a-z0-9-]+);/g, '$1');
-					console.log("XML pre-processing complete. Starting parse...");
-
-					const parser = new DOMParser();
-					const xmlDoc = parser.parseFromString(processedXmlText, "text/xml");
-
-					const parserError = xmlDoc.querySelector("parsererror");
-					if (parserError) {
-						console.error("XML parsing error:", parserError.textContent);
-						throw new Error("Failed to parse the XML file.");
-					}
-
-					const entries = xmlDoc.getElementsByTagName("entry");
-					console.log(`Found ${entries.length} total <entry> elements.`);
-                    let processedVerbs = 0;
-
-					for (const entry of entries) {
-						const senses = entry.getElementsByTagName("sense");
-						for (const sense of senses) {
-							const posElements = sense.getElementsByTagName("pos");
-							const posTags = Array.from(posElements).map(p => p.textContent);
-
-							const foundVerbTags = posTags.filter(pt => verbPOSTags.includes(pt));
-
-							if (foundVerbTags.length > 0) {
-								const kebElements = entry.getElementsByTagName("k_ele");
-								const rebElements = entry.getElementsByTagName("r_ele");
-								const glossElement = sense.querySelector("gloss");
-
-								if (rebElements.length > 0 && glossElement) {
-									const reading = rebElements[0].querySelector("reb").textContent;
-									const kanji = kebElements.length > 0 ? kebElements[0].querySelector("keb").textContent : reading;
-									const verbType = getVerbType(foundVerbTags, reading);
-
-									if (verbType) {
-                                        if (processedVerbs < 10) { // Log the first 10 verbs we successfully classify
-                                            console.log(`SUCCESS: Classified [${kanji}/${reading}] as [${verbType}] with tags:`, foundVerbTags);
-                                        }
-										verbs.push({
-											kanji: kanji,
-											reading: reading,
-											english: glossElement.textContent.split(';')[0],
-											type: verbType,
-											dictForm: kanji || reading,
-										});
-                                        processedVerbs++;
-										break; 
-									}
-								}
-							}
-						}
-					}
-					console.log(`--- PARSING COMPLETE ---`);
-                    console.log(`Found and successfully classified ${verbs.length} verbs.`);
-					if (verbs.length > 0) {
-						console.log("First verb found:", verbs[0]);
-					} else {
-						console.warn("Parsing finished, but no verbs were added. This indicates an issue with the getVerbType logic or XML structure not matching expectations.");
-					}
+					console.log(`Successfully loaded and decompressed ${verbs.length} verbs.`);
 				} catch (error) {
-					console.error("Fatal error in loadVerbs:", error);
+					console.error("Fatal error loading verbs.json.gz:", error);
                     verbDisplay.textContent = "Fatal Error";
-                    formDisplay.innerHTML = `An error occurred while loading verbs. <br><small>${error.message}</small>`;
+                    formDisplay.innerHTML = `Could not load verb data. <br><small>Did you run the build script successfully?</small>`;
 				}
-			}
-
-			function getVerbType(posTags, reading) {
-				if (!reading) {
-                    console.warn("Skipping verb because it has no reading:", posTags);
-                    return null;
-                }
-
-				if (posTags.includes("v1") || posTags.includes("vz")) return "ichidan";
-				
-				if (posTags.some(p => p && p.startsWith("v5"))) {
-					const ending = reading.slice(-1);
-					if ("うくぐすつぬぶむる".includes(ending)) {
-						return `godan-${ending}`;
-					} else {
-                        console.warn(`Found godan verb with unhandled ending '${ending}'`, {reading, posTags});
-                        return null; // Don't classify if ending is not standard
-                    }
-				}
-				
-				if (posTags.some(p => p && p.startsWith("vs"))) return "suru";
-				if (posTags.includes("vk")) return "kuru";
-
-                // This is not an error, just a verb type we don't handle (e.g. aux-v)
-				return null;
 			}
 
 			// --- Settings ---

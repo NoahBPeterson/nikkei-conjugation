@@ -1,0 +1,11 @@
+# Dependencies
+/node_modules
+
+# Build artifacts to ignore
+# We want to keep verbs.json.gz, but ignore the intermediate and original files.
+/JMdict_e.xml
+/verbs.json
+
+# IDE and OS files
+.vscode/
+.DS_Store
