@@ -184,7 +184,13 @@
 				<div id="conjugation-forms" class="settings-grid">
 					<!-- Checkboxes will be inserted here by script -->
                 </div>
-            </div>
+				<div style="margin-top: 1rem; border-top: 1px solid var(--gray-200); padding-top: 1rem;">
+					<div class="checkbox-group">
+						<input type="checkbox" id="english-prompt-mode">
+						<label for="english-prompt-mode"><strong>English Prompt Mode</strong> (Guess from English)</label>
+					</div>
+				</div>
+			</div>
             </div>
             
 		<footer>
@@ -219,6 +225,7 @@
 			// --- State ---
 			let verbs = [];
 			let currentQuestion = null;
+			let isEnglishPromptMode = false;
 			const conjugationForms = {
 				polite: "Polite (e.g., 'I do')",
 				past: "Past (e.g., 'I did')",
@@ -236,19 +243,19 @@
 			// --- Initialization ---
 			document.addEventListener("DOMContentLoaded", async () => {
 				renderSettings();
+
+				const englishPromptCheckbox = document.getElementById("english-prompt-mode");
+				englishPromptCheckbox.addEventListener("change", (e) => {
+					isEnglishPromptMode = e.target.checked;
+					generateNewQuestion();
+				});
+
 				await loadVerbs();
 				if (verbs.length > 0) {
 					generateNewQuestion();
 				} else {
 					verbDisplay.textContent = "Error";
-					formDisplay.innerHTML = `
-						Could not load verbs from JMdict_e.xml.
-						<br>
-						<small style="font-size: 0.9rem; color: var(--gray-600);">
-							Please open the browser's developer console for details.
-							(Usually F12, or Cmd/Ctrl+Shift+I)
-						</small>
-					`;
+					formDisplay.innerHTML = `Could not load verb data. <br><small>Did you run the build script successfully?</small>`;
 				}
 			});
 
@@ -313,6 +320,8 @@
 
 			// --- Quiz Logic ---
 			function generateNewQuestion() {
+				if (verbs.length === 0) return;
+
 				resultArea.style.display = "none";
 				answerInput.value = "";
 				answerInput.focus();
@@ -320,15 +329,26 @@
 				const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
 				const randomFormKey =
 					activeForms[Math.floor(Math.random() * activeForms.length)];
+				
+				const answer = conjugate(randomVerb, randomFormKey);
 
 				currentQuestion = {
 					verb: randomVerb,
 					form: randomFormKey,
-					answer: conjugate(randomVerb, randomFormKey),
+					answer: answer,
 				};
 
-				verbDisplay.textContent = `${randomVerb.dictForm} (${randomVerb.english})`;
 				formDisplay.textContent = conjugationForms[randomFormKey];
+
+				if (isEnglishPromptMode) {
+					// New mode: Show English verb
+					verbDisplay.textContent = `${randomVerb.english.charAt(0).toUpperCase() + randomVerb.english.slice(1)}`;
+					answerInput.placeholder = "Type your answer in Japanese";
+				} else {
+					// Original mode: Show Japanese verb
+					verbDisplay.textContent = `${randomVerb.dictForm} (${randomVerb.english})`;
+					answerInput.placeholder = "Type your answer in hiragana";
+				}
 			}
 
 			function checkAnswer() {
@@ -348,12 +368,13 @@
 
 			// --- Conjugation Engine ---
 			function conjugate(verb, form) {
-				const { type, reading } = verb;
-				if (!reading) return verb.dictForm;
+				const { type, reading, dictForm } = verb;
+				if (!reading) return dictForm;
+
+				const kanjiBase = dictForm.slice(0, -1);
 
 				if (type === "suru") {
-					// Use kanji stem if it exists and makes sense, otherwise it's just a loan word + suru
-					const base = verb.kanji.endsWith('する') ? verb.kanji.replace(/する$/, "") : verb.dictForm.replace(/する$/, "");
+					const base = dictForm.replace(/する$/, "");
 					switch (form) {
 						case "polite": return base + "します";
 						case "past": return base + "した";
@@ -363,34 +384,18 @@
 						case "passive": return base + "される";
 						case "causative": return base + "させる";
 						case "provisional": return base + "すれば";
-						case "imperative": return base + "しろ"; // or せよ
+						case "imperative": return base + "しろ";
 						case "volitional": return base + "しよう";
-						default: return verb.dictForm;
+						default: return dictForm;
 					}
 				}
 
 				if (type === "kuru") {
-					const base = verb.kanji === '来る' ? '来' : '';
-					if(base) {
-						switch (form) {
-							case "polite": return base + "ます"; // きます
-							case "past": return base + "た"; // きた
-							case "te": return base + "て"; // きて
-							case "negative": return "こない";
-							case "potential": return "こられる";
-							case "passive": return "こられる";
-							case "causative": return "こさせる";
-							case "provisional": return "くれば";
-							case "imperative": return "こい";
-							case "volitional": return "こよう";
-							default: return verb.dictForm;
-						}
-					}
-					// fallback to kana if no kanji base
+					const base = dictForm === '来る' ? '来' : '';
 					switch (form) {
-						case "polite": return "きます";
-						case "past": return "きた";
-						case "te": return "きて";
+						case "polite": return base ? base + "ます" : "きます";
+						case "past": return base ? base + "た" : "きた";
+						case "te": return base ? base + "て" : "きて";
 						case "negative": return "こない";
 						case "potential": return "こられる";
 						case "passive": return "こられる";
@@ -398,30 +403,28 @@
 						case "provisional": return "くれば";
 						case "imperative": return "こい";
 						case "volitional": return "こよう";
-						default: return verb.dictForm;
+						default: return dictForm;
 					}
 				}
 
 				if (type === "ichidan") {
-					const base = verb.dictForm.slice(0, -1);
 					switch (form) {
-						case "polite": return base + "ます";
-						case "past": return base + "た";
-						case "te": return base + "て";
-						case "negative": return base + "ない";
-						case "potential": return base + "られる";
-						case "passive": return base + "られる";
-						case "causative": return base + "させる";
-						case "provisional": return base + "れば";
-						case "imperative": return base + "ろ"; // or よ
-						case "volitional": return base + "よう";
-						default: return verb.dictForm;
+						case "polite": return kanjiBase + "ます";
+						case "past": return kanjiBase + "た";
+						case "te": return kanjiBase + "て";
+						case "negative": return kanjiBase + "ない";
+						case "potential": return kanjiBase + "られる";
+						case "passive": return kanjiBase + "られる";
+						case "causative": return kanjiBase + "させる";
+						case "provisional": return kanjiBase + "れば";
+						case "imperative": return kanjiBase + "ろ";
+						case "volitional": return kanjiBase + "よう";
+						default: return dictForm;
 					}
 				}
 
 				if (type.startsWith("godan")) {
 					const ending = type.split("-")[1];
-					const base = verb.dictForm.slice(0, -1);
 					const endings = {
 						u: { a: "わ", i: "い", e: "え", o: "お", te: "って", ta: "った" },
 						ku: { a: "か", i: "き", e: "け", o: "こ", te: "いて", ta: "いた" },
@@ -434,29 +437,29 @@
 						ru: { a: "ら", i: "り", e: "れ", o: "ろ", te: "って", ta: "った" },
 					};
 					// special case for 行く
-					if (verb.reading === 'いく' && (form === 'te' || form === 'past')) {
-						return base + (form === 'te' ? 'って' : 'った');
+					if (reading === 'いく' && (form === 'te' || form === 'past')) {
+						return kanjiBase + (form === 'te' ? 'って' : 'った');
 					}
 					
 					const e = endings[ending];
-					if (!e) return verb.dictForm; // Should not happen
+					if (!e) return dictForm;
 
 					switch (form) {
-						case "polite": return base + e.i + "ます";
-						case "past": return base + e.ta;
-						case "te": return base + e.te;
-						case "negative": return base + e.a + "ない";
-						case "potential": return base + e.e + "る";
-						case "passive": return base + e.a + "れる";
-						case "causative": return base + e.a + "せる";
-						case "provisional": return base + e.e + "ば";
-						case "imperative": return base + e.e;
-						case "volitional": return base + e.o + "う";
-						default: return verb.dictForm;
+						case "polite": return kanjiBase + e.i + "ます";
+						case "past": return kanjiBase + e.ta;
+						case "te": return kanjiBase + e.te;
+						case "negative": return kanjiBase + e.a + "ない";
+						case "potential": return kanjiBase + e.e + "る";
+						case "passive": return kanjiBase + e.a + "れる";
+						case "causative": return kanjiBase + e.a + "せる";
+						case "provisional": return kanjiBase + e.e + "ば";
+						case "imperative": return kanjiBase + e.e;
+						case "volitional": return kanjiBase + e.o + "う";
+						default: return dictForm;
 					}
 				}
 				
-				return verb.dictForm; // Fallback
+				return dictForm; // Fallback
 			}
         </script>
     </body>
