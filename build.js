@@ -62,20 +62,44 @@ const entries = jmdictObj.JMdict.entry;
 
 function getVerbType(posTags, reading) {
     if (!reading) return null;
+
+    // Handle special irregulars first
+    if (posTags.includes('v5r-i')) return 'godan-ru-special';
+    
+    const v5map = {
+        'k': 'ku', 'g': 'gu', 's': 'su', 't': 'tsu', 'n': 'nu',
+        'b': 'bu', 'm': 'mu', 'r': 'ru', 'u': 'u',
+    };
+
     if (posTags.includes("v1") || posTags.includes("vz")) return "ichidan";
+
     if (posTags.some(p => p && p.startsWith("v5"))) {
-        const ending = reading.slice(-1);
-        if ("うくぐすつぬぶむる".includes(ending)) {
-            return `godan-${ending}`;
+        // Prioritize specific tags like 'v5k', 'v5m'
+        const specificTag = posTags.find(p => p.length === 3 && p.startsWith('v5') && v5map[p.slice(-1)]);
+        if (specificTag) {
+            const lastChar = specificTag.slice(-1);
+            return `godan-${v5map[lastChar]}`;
         }
-        return null;
+        
+        // Fallback for more generic 'v5' tags or irregular endings like v5r-i
+        const ending = reading.slice(-1);
+        if (v5map[ending] || "うくぐすつぬぶむる".includes(ending)) {
+             return `godan-${ending}`;
+        }
+        return null; // Cannot determine godan type
     }
+
     if (posTags.some(p => p && p.startsWith("vs"))) return "suru";
     if (posTags.includes("vk")) return "kuru";
     return null;
 }
 
 for (const entry of entries) {
+    const kebElements = entry.k_ele ? (Array.isArray(entry.k_ele) ? entry.k_ele : [entry.k_ele]) : [];
+    const rebElements = entry.r_ele ? (Array.isArray(entry.r_ele) ? entry.r_ele : [entry.r_ele]) : [];
+    
+    const isCommon = kebElements.some(k => k.ke_pri) || rebElements.some(r => r.re_pri);
+
     const senses = Array.isArray(entry.sense) ? entry.sense : [entry.sense];
 
     for (const sense of senses) {
@@ -86,16 +110,13 @@ for (const entry of entries) {
         const foundVerbTags = posTags.filter(pt => verbPOSTags.includes(pt));
 
         if (foundVerbTags.length > 0) {
-            const rebElements = Array.isArray(entry.r_ele) ? entry.r_ele : [entry.r_ele];
-            const kebElements = Array.isArray(entry.k_ele) ? entry.k_ele : [entry.k_ele];
-
             if (rebElements[0] && rebElements[0].reb && sense.gloss) {
                 const reading = rebElements[0].reb._text;
                 const kanji = (kebElements[0] && kebElements[0].keb) ? kebElements[0].keb._text : reading;
                 const verbType = getVerbType(foundVerbTags, reading);
                 const glosses = Array.isArray(sense.gloss) ? sense.gloss : [sense.gloss];
                 const english = glosses[0]._text || '';
-
+                
                 if (verbType) {
                     verbs.push({
                         kanji,
@@ -103,6 +124,7 @@ for (const entry of entries) {
                         english: english.split(';')[0],
                         type: verbType,
                         dictForm: kanji || reading,
+                        common: isCommon,
                     });
                     break; // Move to the next entry once a verb sense is found
                 }

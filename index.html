@@ -189,6 +189,14 @@
 						<input type="checkbox" id="english-prompt-mode">
 						<label for="english-prompt-mode"><strong>English Prompt Mode</strong> (Guess from English)</label>
 					</div>
+					<div class="checkbox-group" style="margin-top: 0.5rem;">
+						<input type="checkbox" id="include-uncommon-verbs">
+						<label for="include-uncommon-verbs">Include less common verbs</label>
+					</div>
+					<div class="checkbox-group" style="margin-top: 0.5rem;">
+						<input type="checkbox" id="include-suru-verbs">
+						<label for="include-suru-verbs">Include 'suru' verbs</label>
+					</div>
 				</div>
 			</div>
             </div>
@@ -213,6 +221,7 @@
 		</footer>
 
 		<script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+		<script src="https://unpkg.com/wanakana"></script>
 		<script>
 			// --- DOM Elements ---
 			const verbDisplay = document.getElementById("verb-display");
@@ -221,11 +230,16 @@
 			const answerForm = document.getElementById("answer-form");
 			const resultArea = document.getElementById("result-area");
 			const settingsContainer = document.getElementById("conjugation-forms");
+			const submitButton = document.querySelector("#answer-form button");
 
 			// --- State ---
 			let verbs = [];
 			let currentQuestion = null;
 			let isEnglishPromptMode = false;
+			let includeUncommonVerbs = false;
+			let includeSuruVerbs = false;
+			let isAnswered = false;
+
 			const conjugationForms = {
 				polite: "Polite (e.g., 'I do')",
 				past: "Past (e.g., 'I did')",
@@ -243,10 +257,23 @@
 			// --- Initialization ---
 			document.addEventListener("DOMContentLoaded", async () => {
 				renderSettings();
+				wanakana.bind(document.getElementById("answer-input"));
 
 				const englishPromptCheckbox = document.getElementById("english-prompt-mode");
 				englishPromptCheckbox.addEventListener("change", (e) => {
 					isEnglishPromptMode = e.target.checked;
+					generateNewQuestion();
+				});
+
+				const uncommonVerbsCheckbox = document.getElementById("include-uncommon-verbs");
+				uncommonVerbsCheckbox.addEventListener("change", (e) => {
+					includeUncommonVerbs = e.target.checked;
+					generateNewQuestion();
+				});
+
+				const suruVerbsCheckbox = document.getElementById("include-suru-verbs");
+				suruVerbsCheckbox.addEventListener("change", (e) => {
+					includeSuruVerbs = e.target.checked;
 					generateNewQuestion();
 				});
 
@@ -261,7 +288,11 @@
 
 			answerForm.addEventListener("submit", (e) => {
 				e.preventDefault();
-				checkAnswer();
+				if (isAnswered) {
+					generateNewQuestion();
+				} else {
+					checkAnswer();
+				}
 			});
 
 			// --- Verbs Loading and Parsing ---
@@ -320,13 +351,28 @@
 
 			// --- Quiz Logic ---
 			function generateNewQuestion() {
-				if (verbs.length === 0) return;
+				let verbPool = verbs;
+				
+				if (!includeUncommonVerbs) {
+					verbPool = verbPool.filter(v => v.common);
+				}
+				if (!includeSuruVerbs) {
+					verbPool = verbPool.filter(v => v.type !== 'suru');
+				}
+
+				if (verbPool.length === 0) {
+					verbDisplay.textContent = "No verbs found";
+					formDisplay.innerHTML = `No verbs match the current filter settings. <br><small>Try changing the settings.</small>`;
+					return;
+				}
 
 				resultArea.style.display = "none";
 				answerInput.value = "";
 				answerInput.focus();
+				isAnswered = false;
+				submitButton.textContent = "Check Answer";
 
-				const randomVerb = verbs[Math.floor(Math.random() * verbs.length)];
+				const randomVerb = verbPool[Math.floor(Math.random() * verbPool.length)];
 				const randomFormKey =
 					activeForms[Math.floor(Math.random() * activeForms.length)];
 				
@@ -338,40 +384,57 @@
 					answer: answer,
 				};
 
-				formDisplay.textContent = conjugationForms[randomFormKey];
+				console.log("New question:", {
+					verb: randomVerb.dictForm,
+					english: randomVerb.english,
+					type: randomVerb.type,
+					form: randomFormKey,
+					expectedAnswer: answer
+				});
 
 				if (isEnglishPromptMode) {
-					// New mode: Show English verb
+					// New mode: Show English verb, but also provide the dictionary form to remove ambiguity.
 					verbDisplay.textContent = `${randomVerb.english.charAt(0).toUpperCase() + randomVerb.english.slice(1)}`;
+					formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span><br>${conjugationForms[randomFormKey]}`;
 					answerInput.placeholder = "Type your answer in Japanese";
 				} else {
 					// Original mode: Show Japanese verb
 					verbDisplay.textContent = `${randomVerb.dictForm} (${randomVerb.english})`;
+					formDisplay.textContent = conjugationForms[randomFormKey];
 					answerInput.placeholder = "Type your answer in hiragana";
 				}
 			}
 
 			function checkAnswer() {
-				const userAnswer = answerInput.value.trim();
+				const userAnswer = wanakana.toHiragana(answerInput.value.trim());
 				if (!userAnswer) return;
 
 				resultArea.style.display = "block";
-				if (userAnswer === currentQuestion.answer) {
+
+				const answerWithKanji = currentQuestion.answer;
+				
+				// Create a hiragana-only version of the verb to generate the kana-only answer
+				const hiraganaVerb = { ...currentQuestion.verb, dictForm: currentQuestion.verb.reading };
+				const answerHiragana = conjugate(hiraganaVerb, currentQuestion.form);
+				
+				const isCorrect = (userAnswer === answerWithKanji || userAnswer === answerHiragana);
+
+				if (isCorrect) {
 					resultArea.textContent = `Correct!`;
 					resultArea.className = "correct";
                 } else {
-					resultArea.innerHTML = `Incorrect. The correct answer is: <strong>${currentQuestion.answer}</strong>`;
+					// Show the primary answer (with kanji, if available).
+					resultArea.innerHTML = `Incorrect. The correct answer is: <strong>${answerWithKanji}</strong>`;
 					resultArea.className = "incorrect";
 				}
-				setTimeout(generateNewQuestion, 2000);
+				isAnswered = true;
+				submitButton.textContent = "Next Question";
 			}
 
 			// --- Conjugation Engine ---
 			function conjugate(verb, form) {
 				const { type, reading, dictForm } = verb;
 				if (!reading) return dictForm;
-
-				const kanjiBase = dictForm.slice(0, -1);
 
 				if (type === "suru") {
 					const base = dictForm.replace(/する$/, "");
@@ -407,7 +470,25 @@
 					}
 				}
 
+				if (type === 'godan-ru-special') {
+					const base = dictForm.slice(0, -1);
+					switch (form) {
+						case 'polite':      return base + 'います'; // Irregular polite form
+						case 'te':          return base + 'って';
+						case 'past':        return base + 'った';
+						case 'negative':    return base + 'らない';
+						case 'provisional': return base + 'れば';
+						case 'potential':   return base + 'れる';
+						case 'passive':     return base + 'れる';
+						case 'causative':   return base + 'させる';
+						case 'imperative':  return base + 'い';
+						case 'volitional':  return base + 'ろう';
+						default: return dictForm;
+					}
+				}
+
 				if (type === "ichidan") {
+					const kanjiBase = dictForm.slice(0, -1);
 					switch (form) {
 						case "polite": return kanjiBase + "ます";
 						case "past": return kanjiBase + "た";
@@ -424,6 +505,7 @@
 				}
 
 				if (type.startsWith("godan")) {
+					const kanjiBase = dictForm.slice(0, -1);
 					const ending = type.split("-")[1];
 					const endings = {
 						u: { a: "わ", i: "い", e: "え", o: "お", te: "って", ta: "った" },
@@ -462,5 +544,60 @@
 				return dictForm; // Fallback
 			}
         </script>
+		<script>
+			// --- Conjugation Test Suite ---
+			function runConjugationTests() {
+				console.log("--- Running Conjugation Test Suite ---");
+
+				// Dummy 'conjugate' function to run tests without the full verb list.
+				// This must be a copy of the main conjugate function.
+				const conjugate = window.conjugate;
+
+				const testCases = [
+					// User's latest report
+					{ verb: { dictForm: '居らっしゃる', reading: 'いらっしゃる', type: 'godan-ru-special' }, form: 'provisional', expected: '居らっしゃれば' },
+					{ verb: { dictForm: 'いらっしゃる', reading: 'いらっしゃる', type: 'godan-ru-special' }, form: 'polite', expected: 'いらっしゃいます' },
+					{ verb: { dictForm: '止む', reading: 'やむ', type: 'godan-mu' }, form: 'polite', expected: '止みます' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'polite', expected: '読みます' },
+					{ verb: { dictForm: '余る', reading: 'あまる', type: 'godan-ru' }, form: 'volitional', expected: '余ろう' },
+					
+					// From previous reports
+					{ verb: { dictForm: '湿る', reading: 'しめる', type: 'godan-ru' }, form: 'provisional', expected: '湿れば' },
+					{ verb: { dictForm: '降り積もる', reading: 'ふりつもる', type: 'godan-ru' }, form: 'te', expected: '降り積もって' },
+					
+					// Other regression and edge cases
+					{ verb: { dictForm: '取る', reading: 'とる', type: 'godan-ru' }, form: 'volitional', expected: '取ろう' },
+					{ verb: { dictForm: '歩く', reading: 'あるく', type: 'godan-ku' }, form: 'te', expected: '歩いて' },
+					{ verb: { dictForm: '行く', reading: 'いく', type: 'godan-ku' }, form: 'te', expected: '行って' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'past', expected: '食べた' },
+					{ verb: { dictForm: 'する', reading: 'する', type: 'suru' }, form: 'negative', expected: 'しない' },
+					{ verb: { dictForm: '来る', reading: 'くる', type: 'kuru' }, form: 'potential', expected: 'こられる' },
+					{ verb: { dictForm: '買う', reading: 'かう', type: 'godan-u' }, form: 'volitional', expected: '買おう' },
+				];
+
+				let failures = 0;
+				testCases.forEach(({ verb, form, expected }, i) => {
+					const result = conjugate(verb, form);
+					if (result === expected) {
+						console.log(`%c[PASS] Test ${i+1}: ${verb.dictForm} (${form}) -> ${result}`, 'color: green');
+					} else {
+						console.error(`%c[FAIL] Test ${i+1}: ${verb.dictForm} (${form})`, 'color: red');
+						console.error(`       - Expected: ${expected}`);
+						console.error(`       - Got: ${result}`);
+						failures++;
+					}
+				});
+
+				if (failures === 0) {
+					console.log("%c--- All tests passed! ---", 'color: green; font-weight: bold;');
+				} else {
+					console.error(`%c--- ${failures} test(s) failed. ---`, 'color: red; font-weight: bold;');
+				}
+			}
+			// You can run the tests by typing `runConjugationTests()` in the console.
+			// Making it available on the window object for easy access.
+			window.runConjugationTests = runConjugationTests;
+			window.conjugate = conjugate; // Make main conjugate function available for testing
+		</script>
     </body>
 </html>
