@@ -277,6 +277,8 @@
 				provisional: "Provisional (e.g., 'if I do')",
 				imperative: "Imperative (e.g., 'Do it!')",
 				volitional: "Volitional (e.g., 'Let's do')",
+				negativePolite: "Negative Polite (e.g., 'I don't do')",
+				negativePast: "Negative Past (e.g., 'I didn't do')",
 			};
 			let activeForms = Object.keys(conjugationForms);
 
@@ -445,7 +447,7 @@
 					english: randomVerb.english,
 					type: randomVerb.type,
 					form: randomFormKey,
-					expectedAnswer: answer
+					//expectedAnswer: answer
 				});
 
 				if (isEnglishPromptMode) {
@@ -586,6 +588,14 @@
 					'seek': 'sought'
 				};
 				
+				const irregularParticiple = {
+					'go': 'gone', 'come': 'come', 'do': 'done', 'have': 'had', 'be': 'been',
+					'see': 'seen', 'take': 'taken', 'give': 'given', 'make': 'made', 'get': 'gotten',
+					'know': 'known', 'think': 'thought', 'say': 'said', 'tell': 'told',
+					'find': 'found', 'buy': 'bought', 'bring': 'brought', 'teach': 'taught',
+					'catch': 'caught', 'fight': 'fought', 'seek': 'sought'
+				};
+				
 				const getPastForm = (verb) => {
 					if (irregularPast[verb]) {
 						return irregularPast[verb];
@@ -602,6 +612,14 @@
 					}
 				};
 				
+				const getPastParticiple = (verb) => {
+					if (irregularParticiple[verb]) return irregularParticiple[verb];
+					if (verb.endsWith('e')) return verb + 'd';
+					if (verb.endsWith('y') && !/[aeiou]y$/.test(verb)) return verb.slice(0, -1) + 'ied';
+					if (/[^aeiou][aeiou][^aeiou]$/.test(verb)) return verb + verb.slice(-1) + 'ed';
+					return verb + 'ed';
+				};
+				
 				switch (form) {
 					case "polite":
 						return `I ${baseVerb}`;
@@ -614,7 +632,7 @@
 					case "potential":
 						return `I can ${baseVerb}`;
 					case "passive":
-						return `is ${getPastForm(baseVerb)}`;
+						return `is ${getPastParticiple(baseVerb)}`;
 					case "causative":
 						return `to make someone ${baseVerb}`;
 					case "causativePassive":
@@ -625,6 +643,70 @@
 						return `${baseVerb.charAt(0).toUpperCase() + baseVerb.slice(1)}!`;
 					case "volitional":
 						return `let's ${baseVerb}`;
+					case "negativePolite":
+						return `I don't ${baseVerb}`;
+					case "negativePast":
+						return `I didn't ${baseVerb}`;
+					case "teNegative":
+						return `without ${baseVerb}ing`;
+					case "potentialNegative":
+						return `I can't ${baseVerb}`;
+					case "passiveNegative":
+						return `is not ${getPastParticiple(baseVerb)}`;
+					case "causativeNegative":
+						return `not make someone ${baseVerb}`;
+					case "provisionalNegative":
+						return `if I don't ${baseVerb}`;
+					case "negativePlainConditional":
+						return `if I don't ${baseVerb}`;
+					case "potentialNegativePast":
+						return `I couldn't ${baseVerb}`;
+					case "passiveNegativePast":
+						return `was not ${getPastParticiple(baseVerb)}`;
+					case "causativeNegativePast":
+						return `didn't make someone ${baseVerb}`;
+					case "pastPolite":
+						return `I ${getPastForm(baseVerb)}`;
+					case "pastTe":
+						return `...and ${getPastForm(baseVerb)}`;
+					case "pastPotential":
+						return `I could ${baseVerb}`;
+					case "pastPassive":
+						return `was ${getPastParticiple(baseVerb)}`;
+					case "pastCausative":
+						return `made someone ${baseVerb}`;
+					case "potentialPolite":
+						return `I can ${baseVerb}`;
+					case "potentialPast":
+						return `I could ${baseVerb}`;
+					case "passivePolite":
+						return `is ${getPastParticiple(baseVerb)}`;
+					case "passivePast":
+						return `was ${getPastParticiple(baseVerb)}`;
+					case "causativePolite":
+						return `make someone ${baseVerb}`;
+					case "causativePast":
+						return `made someone ${baseVerb}`;
+					case "negativePolitePast":
+						return `I didn't ${baseVerb}`;
+					case "causativePassiveNegative":
+						return `is not made to ${baseVerb}`;
+					case "causativePassivePolite":
+						return `is made to ${baseVerb}`;
+					case "causativePassivePast":
+						return `was made to ${baseVerb}`;
+					case "causativePassiveNegativePast":
+						return `was not made to ${baseVerb}`;
+					case "causativePassiveNegativePolite":
+						return `is not made to ${baseVerb}`;
+					case "causativePassiveNegativeConditional":
+						return `if not made to ${baseVerb}`;
+					case "causativePassiveNegativePlainConditional":
+						return `if not made to ${baseVerb}`;
+					case "causativePassiveNegativePolitePast":
+						return `was not made to ${baseVerb}`;
+					case "causativePassiveNegativePolitePastConditional":
+						return `if was not made to ${baseVerb}`;
 					default:
 						return `to ${baseVerb}`;
 				}
@@ -634,6 +716,288 @@
 			function conjugate(verb, form) {
 				const { type, reading, dictForm } = verb;
 				if (!reading) return dictForm;
+
+				// Handle stacked conjugations first
+				if (form === "negativePolite") {
+					// Negative polite: ません (masen)
+					if (type === "ichidan") {
+						const kanjiBase = dictForm.slice(0, -1);
+						return kanjiBase + "ません";
+					} else if (type === "suru") {
+						const base = dictForm.replace(/する$/, "");
+						return base + "しません";
+					} else if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "ません" : "きません";
+					} else if (type === 'godan-ru-special') {
+						const base = dictForm.slice(0, -1);
+						return base + "いません";
+					} else if (type.startsWith("godan")) {
+						const kanjiBase = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const endings = {
+							u: { i: "い" }, ku: { i: "き" }, gu: { i: "ぎ" }, su: { i: "し" },
+							tsu: { i: "ち" }, nu: { i: "に" }, bu: { i: "び" }, mu: { i: "み" }, ru: { i: "り" }
+						};
+						const e = endings[ending];
+						return kanjiBase + e.i + "ません";
+					}
+					return dictForm;
+				}
+				if (form === "negativePast") {
+					// Negative past: なかった (nai + ta)
+					if (type === "ichidan") {
+						const kanjiBase = dictForm.slice(0, -1);
+						return kanjiBase + "なかった";
+					} else if (type === "suru") {
+						const base = dictForm.replace(/する$/, "");
+						return base + "しなかった";
+					} else if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "なかった" : "こなかった";
+					} else if (type === 'godan-ru-special') {
+						const base = dictForm.slice(0, -1);
+						return base + "らなかった";
+					} else if (type.startsWith("godan")) {
+						const kanjiBase = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const endings = {
+							u: { a: "わ" }, ku: { a: "か" }, gu: { a: "が" }, su: { a: "さ" },
+							tsu: { a: "た" }, nu: { a: "な" }, bu: { a: "ば" }, mu: { a: "ま" }, ru: { a: "ら" }
+						};
+						const e = endings[ending];
+						return kanjiBase + e.a + "なかった";
+					}
+					return dictForm;
+				}
+				if (form === "teNegative") {
+					const neg = conjugate(verb, "negative");
+					return neg.replace(/ない$/, "ないで");
+				}
+				if (form === "potentialNegative") {
+					const potentialForm = conjugate(verb, "potential");
+					const potentialVerb = { type: "ichidan", reading, dictForm: potentialForm };
+					return conjugate(potentialVerb, "negative");
+				}
+				if (form === "passiveNegative") {
+					const passiveForm = conjugate(verb, "passive");
+					const passiveVerb = { type: "ichidan", reading, dictForm: passiveForm };
+					return conjugate(passiveVerb, "negative");
+				}
+				if (form === "causativeNegative") {
+					const causativeForm = conjugate(verb, "causative");
+					const causativeVerb = { type: "ichidan", reading, dictForm: causativeForm };
+					return conjugate(causativeVerb, "negative");
+				}
+				if (form === "provisionalNegative") {
+					// Alias to plain negative conditional (～なければ)
+					return conjugate(verb, "negativePlainConditional");
+				}
+				if (form === "negativePlainConditional") {
+					// Negative plain conditional: なければ
+					if (type === "ichidan") {
+						const kanjiBase = dictForm.slice(0, -1);
+						return kanjiBase + "なければ";
+					} else if (type === "suru") {
+						const base = dictForm.replace(/する$/, "");
+						return base + "しなければ";
+					} else if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "なければ" : "こなければ";
+					} else if (type === 'godan-ru-special') {
+						const base = dictForm.slice(0, -1);
+						return base + "らなければ";
+					} else if (type.startsWith("godan")) {
+						const kanjiBase = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const endings = {
+							u: { a: "わ" }, ku: { a: "か" }, gu: { a: "が" }, su: { a: "さ" },
+							tsu: { a: "た" }, nu: { a: "な" }, bu: { a: "ば" }, mu: { a: "ま" }, ru: { a: "ら" }
+						};
+						const e = endings[ending];
+						return kanjiBase + e.a + "なければ";
+					}
+					return dictForm;
+				}
+				if (form === "potentialNegativePast") {
+					return conjugate(verb, "potentialNegative").replace(/ない$/, "なかった");
+				}
+				if (form === "passiveNegativePast") {
+					return conjugate(verb, "passiveNegative").replace(/ない$/, "なかった");
+				}
+				if (form === "causativeNegativePast") {
+					return conjugate(verb, "causativeNegative").replace(/ない$/, "なかった");
+				}
+				// Double conjugations
+				if (form === "pastPolite") {
+					const polite = conjugate(verb, "polite");
+					return polite.replace(/ます$/, "ました");
+				}
+				if (form === "pastTe") {
+					// Build te-form from past directly
+					if (type === "ichidan") {
+						const kanjiBase = dictForm.slice(0, -1);
+						return kanjiBase + "て";
+					} else if (type === "suru") {
+						const base = dictForm.replace(/する$/, "");
+						return base + "して";
+					} else if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "て" : "きて";
+					} else if (type === 'godan-ru-special') {
+						const base = dictForm.slice(0, -1);
+						return base + "って";
+					} else if (type.startsWith("godan")) {
+						const kanjiBase = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const endings = {
+							u: { te: "って" }, ku: { te: "いて" }, gu: { te: "いで" }, su: { te: "して" },
+							tsu: { te: "って" }, nu: { te: "んで" }, bu: { te: "んで" }, mu: { te: "んで" }, ru: { te: "って" }
+						};
+						const e = endings[ending];
+						// special case for 行く
+						if (reading === 'いく') {
+							return kanjiBase + "って";
+						}
+						return kanjiBase + e.te;
+					}
+					return dictForm;
+				}
+				// Direct implementations for passive/causative/potential + polite/past
+				if (form === "potentialPolite") {
+					if (type === "ichidan") return dictForm.slice(0, -1) + "られます";
+					if (type.startsWith("godan")) {
+						const base = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const e = {u:{e:"え"},ku:{e:"け"},gu:{e:"げ"},su:{e:"せ"},tsu:{e:"て"},
+						           nu:{e:"ね"},bu:{e:"べ"},mu:{e:"め"},ru:{e:"れ"}}[ending];
+						return base + e.e + "ます";
+					}
+					if (type === "suru") return dictForm.replace(/する$/, "") + "できます";
+					if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "られます" : "こられます";
+					}
+				}
+				if (form === "passivePolite") {
+					if (type === "ichidan") return dictForm.slice(0, -1) + "られます";
+					if (type.startsWith("godan")) {
+						const base = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const e = {u:{a:"わ"},ku:{a:"か"},gu:{a:"が"},su:{a:"さ"},tsu:{a:"た"},
+						           nu:{a:"な"},bu:{a:"ば"},mu:{a:"ま"},ru:{a:"ら"}}[ending];
+						return base + e.a + "れます";
+					}
+					if (type === "suru") return dictForm.replace(/する$/, "") + "されます";
+					if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "られます" : "こられます";
+					}
+				}
+				if (form === "passivePast") {
+					if (type === "ichidan") return dictForm.slice(0, -1) + "られた";
+					if (type.startsWith("godan")) {
+						const base = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const e = {u:{a:"わ"},ku:{a:"か"},gu:{a:"が"},su:{a:"さ"},tsu:{a:"た"},
+						           nu:{a:"な"},bu:{a:"ば"},mu:{a:"ま"},ru:{a:"ら"}}[ending];
+						return base + e.a + "れた";
+					}
+					if (type === "suru") return dictForm.replace(/する$/, "") + "された";
+					if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "られた" : "こられた";
+					}
+				}
+				if (form === "causativePolite") {
+					if (type === "ichidan") return dictForm.slice(0, -1) + "させます";
+					if (type.startsWith("godan")) {
+						const base = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const e = {u:{a:"わ"},ku:{a:"か"},gu:{a:"が"},su:{a:"さ"},tsu:{a:"た"},
+						           nu:{a:"な"},bu:{a:"ば"},mu:{a:"ま"},ru:{a:"ら"}}[ending];
+						return base + e.a + "せます";
+					}
+					if (type === "suru") return dictForm.replace(/する$/, "") + "させます";
+					if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "させます" : "こさせます";
+					}
+				}
+				if (form === "causativePast") {
+					if (type === "ichidan") return dictForm.slice(0, -1) + "させた";
+					if (type.startsWith("godan")) {
+						const base = dictForm.slice(0, -1);
+						const ending = type.split("-")[1];
+						const e = {u:{a:"わ"},ku:{a:"か"},gu:{a:"が"},su:{a:"さ"},tsu:{a:"た"},
+						           nu:{a:"な"},bu:{a:"ば"},mu:{a:"ま"},ru:{a:"ら"}}[ending];
+						return base + e.a + "せた";
+					}
+					if (type === "suru") return dictForm.replace(/する$/, "") + "させた";
+					if (type === "kuru") {
+						const base = dictForm === '来る' ? '来' : '';
+						return base ? base + "させた" : "こさせた";
+					}
+				}
+				if (form === "potentialPast") {
+					return conjugate(verb, "pastPotential");
+				}
+				if (form === "pastPotential") {
+					const potentialPoliteForm = conjugate(verb, "potentialPolite");
+					return potentialPoliteForm.replace(/ます$/, "た");
+				}
+				if (form === "pastPassive") {
+					return conjugate(verb, "passivePast");
+				}
+				if (form === "pastCausative") {
+					return conjugate(verb, "causativePast");
+				}
+				// Triple conjugations
+				if (form === "negativePolitePast") {
+					const np = conjugate(verb, "negativePolite");   // ～ません
+					return np.replace(/ません$/, "ませんでした");    // → ～ませんでした
+				}
+				if (form === "causativePassiveNegative") {
+					const causativePassiveForm = conjugate(verb, "causativePassive");
+					const causativePassiveVerb = { type: "ichidan", reading, dictForm: causativePassiveForm };
+					return conjugate(causativePassiveVerb, "negative");
+				}
+				if (form === "causativePassivePolite") {
+					const cp = conjugate(verb, "causativePassive");
+					return conjugate({ type: "ichidan", reading, dictForm: cp }, "polite");
+				}
+				if (form === "causativePassivePast") {
+					const cp = conjugate(verb, "causativePassive");
+					return conjugate({ type: "ichidan", reading, dictForm: cp }, "past");
+				}
+				// Quadruple conjugations
+				if (form === "causativePassiveNegativePast") {
+					return conjugate(verb, "causativePassiveNegative").replace(/ない$/, "なかった");
+				}
+				if (form === "causativePassiveNegativePolite") {
+					return conjugate(verb, "causativePassiveNegative").replace(/ない$/, "ません");
+				}
+				if (form === "causativePassiveNegativeConditional") {
+					return conjugate(verb, "causativePassiveNegative").replace(/ない$/, "なければ");
+				}
+				// Quintuple conjugations
+				if (form === "causativePassiveNegativePolitePast") {
+					return conjugate(verb, "causativePassiveNegativePolite").replace(/ません$/, "ませんでした");
+				}
+				if (form === "causativePassiveNegativePoliteConditional") {
+					// same surface form as the plain conditional
+					const cpNeg = conjugate(verb, "causativePassiveNegative");
+					return cpNeg.replace(/ない$/, "なければ");
+				}
+				if (form === "causativePassiveNegativePlainConditional") {
+					return conjugate(verb, "causativePassiveNegative").replace(/ない$/, "なければ");
+				}
+				// Sextuple conjugations (polite conditional)
+				if (form === "causativePassiveNegativePolitePastConditional") {
+					const causativePassiveNegativePolitePastForm = conjugate(verb, "causativePassiveNegativePolitePast");
+					// Add たら to polite past form: ...ませんでした → ...ませんでしたら
+					return causativePassiveNegativePolitePastForm + "ら";
+				}
 
 				if (type === "suru") {
 					const base = dictForm.replace(/する$/, "");
@@ -783,6 +1147,62 @@
 					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'causativePassive', expected: '読ませられる' },
 					{ verb: { dictForm: 'する', reading: 'する', type: 'suru' }, form: 'causativePassive', expected: 'させられる' },
 					{ verb: { dictForm: '来る', reading: 'くる', type: 'kuru' }, form: 'causativePassive', expected: 'こさせられる' },
+					
+					// Stacked conjugation tests
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'negativePolite', expected: '食べません' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'negativePast', expected: '食べなかった' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'negativePolite', expected: '読みません' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'negativePast', expected: '読まなかった' },
+					{ verb: { dictForm: 'する', reading: 'する', type: 'suru' }, form: 'negativePolite', expected: 'しません' },
+					{ verb: { dictForm: '来る', reading: 'くる', type: 'kuru' }, form: 'negativePolite', expected: '来ません' },
+					{ verb: { dictForm: '来る', reading: 'くる', type: 'kuru' }, form: 'negativePast', expected: '来なかった' },
+					
+					// Negating derived forms tests
+					{ verb: { dictForm: '書く', reading: 'かく', type: 'godan-ku' }, form: 'potentialNegative', expected: '書けない' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'potentialNegative', expected: '食べられない' },
+					{ verb: { dictForm: 'する', reading: 'する', type: 'suru' }, form: 'potentialNegative', expected: 'できない' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'passiveNegative', expected: '読まれない' },
+					{ verb: { dictForm: '来る', reading: 'くる', type: 'kuru' }, form: 'passiveNegative', expected: 'こられない' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'causativeNegative', expected: '読ませない' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'causativePassiveNegative', expected: '読ませられない' },
+					
+					// Triple conjugation tests
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'negativePlainConditional', expected: '食べなければ' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'negativePlainConditional', expected: '読まなければ' },
+					{ verb: { dictForm: 'する', reading: 'する', type: 'suru' }, form: 'negativePlainConditional', expected: 'しなければ' },
+					{ verb: { dictForm: '来る', reading: 'くる', type: 'kuru' }, form: 'negativePlainConditional', expected: '来なければ' },
+					
+					// Double conjugation tests
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'pastPolite', expected: '食べました' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'causativePolite', expected: '読ませます' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'potentialPolite', expected: '食べられます' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'passivePolite', expected: '食べられます' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'passivePolite', expected: '読まれます' },
+					{ verb: { dictForm: '書く', reading: 'かく', type: 'godan-ku' }, form: 'potentialPolite', expected: '書けます' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'pastPassive', expected: '読まれた' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'pastCausative', expected: '読ませた' },
+					
+					// Triple conjugation tests
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'negativePolitePast', expected: '食べませんでした' },
+					{ verb: { dictForm: '書く', reading: 'かく', type: 'godan-ku' }, form: 'potentialNegativePast', expected: '書けなかった' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'passiveNegativePast', expected: '読まれなかった' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'causativeNegativePast', expected: '読ませなかった' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'provisionalNegative', expected: '食べなければ' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'teNegative', expected: '食べないで' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassivePolite', expected: '食べさせられます' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassivePast', expected: '食べさせられた' },
+					
+					// Quadruple conjugation tests
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassiveNegativePast', expected: '食べさせられなかった' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassiveNegativePolite', expected: '食べさせられません' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassiveNegativeConditional', expected: '食べさせられなければ' },
+					
+					// Quintuple conjugation tests
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassiveNegativePolitePast', expected: '食べさせられませんでした' },
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassiveNegativePoliteConditional', expected: '食べさせられなければ' },
+					
+					// Sextuple conjugation tests
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassiveNegativePolitePastConditional', expected: '食べさせられませんでしたら' },
 				];
 
 				let failures = 0;
@@ -808,6 +1228,11 @@
 			// Making it available on the window object for easy access.
 			window.runConjugationTests = runConjugationTests;
 			window.conjugate = conjugate; // Make main conjugate function available for testing
+			
+			// Run tests automatically when page loads
+			document.addEventListener("DOMContentLoaded", () => {
+				setTimeout(() => runConjugationTests(), 100);
+			});
 		</script>
     </body>
 </html>
