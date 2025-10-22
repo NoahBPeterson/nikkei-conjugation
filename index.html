@@ -213,7 +213,7 @@
 					</div>
 					<div class="checkbox-group" style="margin-top: 0.5rem;">
 						<input type="checkbox" id="show-furigana">
-						<label for="show-furigana">Show furigana</label>
+						<label for="show-furigana">Show furigana <em style="color: var(--gray-600); font-size: 0.9em;">(Shift)</em></label>
 					</div>
 					<div class="checkbox-group" style="margin-top: 0.5rem;">
 						<input type="checkbox" id="use-conjugated-english">
@@ -336,6 +336,18 @@
 					generateNewQuestion();
 				} else {
 					checkAnswer();
+				}
+			});
+
+			// Keyboard shortcuts
+			document.addEventListener("keydown", (e) => {
+				// Shift key to toggle furigana
+				if (e.key === "Shift" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+					e.preventDefault();
+					const furiganaCheckbox = document.getElementById("show-furigana");
+					furiganaCheckbox.checked = !furiganaCheckbox.checked;
+					showFurigana = furiganaCheckbox.checked;
+					updateCurrentQuestionDisplay();
 				}
 			});
 
