@@ -77,6 +77,16 @@
 				margin-bottom: 0.5rem;
 				color: var(--primary);
 			}
+			.furigana {
+				font-size: 1rem;
+				color: var(--gray-600);
+				font-weight: normal;
+				display: block;
+				margin-bottom: 0.25rem;
+			}
+			.verb-with-furigana {
+				position: relative;
+			}
 			#quiz-area .form-display {
 				font-size: 1.5rem;
 				text-align: center;
@@ -197,6 +207,18 @@
 						<input type="checkbox" id="include-suru-verbs">
 						<label for="include-suru-verbs">Include 'suru' verbs</label>
 					</div>
+					<div class="checkbox-group" style="margin-top: 0.5rem;">
+						<input type="checkbox" id="show-translation" checked>
+						<label for="show-translation">Show English translation</label>
+					</div>
+					<div class="checkbox-group" style="margin-top: 0.5rem;">
+						<input type="checkbox" id="show-furigana">
+						<label for="show-furigana">Show furigana</label>
+					</div>
+					<div class="checkbox-group" style="margin-top: 0.5rem;">
+						<input type="checkbox" id="use-conjugated-english">
+						<label for="use-conjugated-english">Use conjugated English prompts</label>
+					</div>
 				</div>
 			</div>
             </div>
@@ -238,6 +260,9 @@
 			let isEnglishPromptMode = false;
 			let includeUncommonVerbs = false;
 			let includeSuruVerbs = false;
+			let showTranslation = true;
+			let showFurigana = false;
+			let useConjugatedEnglish = false;
 			let isAnswered = false;
 
 			const conjugationForms = {
@@ -248,6 +273,7 @@
 				potential: "Potential (e.g., 'I can do')",
 				passive: "Passive (e.g., 'is done')",
 				causative: "Causative (e.g., 'to make someone do')",
+				causativePassive: "Causative-Passive (e.g., 'is made to do')",
 				provisional: "Provisional (e.g., 'if I do')",
 				imperative: "Imperative (e.g., 'Do it!')",
 				volitional: "Volitional (e.g., 'Let's do')",
@@ -275,6 +301,24 @@
 				suruVerbsCheckbox.addEventListener("change", (e) => {
 					includeSuruVerbs = e.target.checked;
 					generateNewQuestion();
+				});
+
+				const showTranslationCheckbox = document.getElementById("show-translation");
+				showTranslationCheckbox.addEventListener("change", (e) => {
+					showTranslation = e.target.checked;
+					updateCurrentQuestionDisplay();
+				});
+
+				const showFuriganaCheckbox = document.getElementById("show-furigana");
+				showFuriganaCheckbox.addEventListener("change", (e) => {
+					showFurigana = e.target.checked;
+					updateCurrentQuestionDisplay();
+				});
+
+				const useConjugatedEnglishCheckbox = document.getElementById("use-conjugated-english");
+				useConjugatedEnglishCheckbox.addEventListener("change", (e) => {
+					useConjugatedEnglish = e.target.checked;
+					updateCurrentQuestionDisplay();
 				});
 
 				await loadVerbs();
@@ -394,14 +438,83 @@
 
 				if (isEnglishPromptMode) {
 					// New mode: Show English verb, but also provide the dictionary form to remove ambiguity.
-					verbDisplay.textContent = `${randomVerb.english.charAt(0).toUpperCase() + randomVerb.english.slice(1)}`;
-					formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span><br>${conjugationForms[randomFormKey]}`;
+					if (useConjugatedEnglish) {
+						const conjugatedEnglish = generateConjugatedEnglish(randomVerb.english, randomFormKey);
+						verbDisplay.textContent = conjugatedEnglish;
+						if (showFurigana && randomVerb.reading) {
+							formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span><br><span class="furigana">${randomVerb.reading}</span>`;
+						} else {
+							formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span>`;
+						}
+					} else {
+						verbDisplay.textContent = `${randomVerb.english.charAt(0).toUpperCase() + randomVerb.english.slice(1)}`;
+						if (showFurigana && randomVerb.reading) {
+							formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span><br><span class="furigana">${randomVerb.reading}</span><br>${conjugationForms[randomFormKey]}`;
+						} else {
+							formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span><br>${conjugationForms[randomFormKey]}`;
+						}
+					}
 					answerInput.placeholder = "Type your answer in Japanese";
 				} else {
 					// Original mode: Show Japanese verb
-					verbDisplay.textContent = `${randomVerb.dictForm} (${randomVerb.english})`;
+					if (showFurigana && randomVerb.reading) {
+						const furiganaHtml = `<span class="furigana">${randomVerb.reading}</span>`;
+						if (showTranslation) {
+							verbDisplay.innerHTML = `${furiganaHtml}${randomVerb.dictForm} (${randomVerb.english})`;
+						} else {
+							verbDisplay.innerHTML = `${furiganaHtml}${randomVerb.dictForm}`;
+						}
+					} else {
+						if (showTranslation) {
+							verbDisplay.textContent = `${randomVerb.dictForm} (${randomVerb.english})`;
+						} else {
+							verbDisplay.textContent = randomVerb.dictForm;
+						}
+					}
 					formDisplay.textContent = conjugationForms[randomFormKey];
 					answerInput.placeholder = "Type your answer in hiragana";
+				}
+			}
+
+			function updateCurrentQuestionDisplay() {
+				if (!currentQuestion) return;
+				
+				const { verb: randomVerb, form: randomFormKey } = currentQuestion;
+				
+				if (isEnglishPromptMode) {
+					// New mode: Show English verb, but also provide the dictionary form to remove ambiguity.
+					if (useConjugatedEnglish) {
+						const conjugatedEnglish = generateConjugatedEnglish(randomVerb.english, randomFormKey);
+						verbDisplay.textContent = conjugatedEnglish;
+						if (showFurigana && randomVerb.reading) {
+							formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span><br><span class="furigana">${randomVerb.reading}</span>`;
+						} else {
+							formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span>`;
+						}
+					} else {
+						verbDisplay.textContent = `${randomVerb.english.charAt(0).toUpperCase() + randomVerb.english.slice(1)}`;
+						if (showFurigana && randomVerb.reading) {
+							formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span><br><span class="furigana">${randomVerb.reading}</span><br>${conjugationForms[randomFormKey]}`;
+						} else {
+							formDisplay.innerHTML = `<span style="color: var(--gray-600); font-size: 1.2rem;">(${randomVerb.dictForm})</span><br>${conjugationForms[randomFormKey]}`;
+						}
+					}
+				} else {
+					// Original mode: Show Japanese verb
+					if (showFurigana && randomVerb.reading) {
+						const furiganaHtml = `<span class="furigana">${randomVerb.reading}</span>`;
+						if (showTranslation) {
+							verbDisplay.innerHTML = `${furiganaHtml}${randomVerb.dictForm} (${randomVerb.english})`;
+						} else {
+							verbDisplay.innerHTML = `${furiganaHtml}${randomVerb.dictForm}`;
+						}
+					} else {
+						if (showTranslation) {
+							verbDisplay.textContent = `${randomVerb.dictForm} (${randomVerb.english})`;
+						} else {
+							verbDisplay.textContent = randomVerb.dictForm;
+						}
+					}
 				}
 			}
 
@@ -431,6 +544,80 @@
 				submitButton.textContent = "Next Question";
 			}
 
+			// --- English Conjugation Generator ---
+			function generateConjugatedEnglish(english, form) {
+				// Remove "to " prefix if present
+				const baseVerb = english.replace(/^to\s+/i, '');
+				
+				// Handle irregular verbs
+				const irregularPast = {
+					'go': 'went',
+					'come': 'came',
+					'do': 'did',
+					'have': 'had',
+					'be': 'was',
+					'see': 'saw',
+					'take': 'took',
+					'give': 'gave',
+					'make': 'made',
+					'get': 'got',
+					'know': 'knew',
+					'think': 'thought',
+					'say': 'said',
+					'tell': 'told',
+					'find': 'found',
+					'buy': 'bought',
+					'bring': 'brought',
+					'teach': 'taught',
+					'catch': 'caught',
+					'fight': 'fought',
+					'seek': 'sought'
+				};
+				
+				const getPastForm = (verb) => {
+					if (irregularPast[verb]) {
+						return irregularPast[verb];
+					}
+					// Simple past tense rules
+					if (verb.endsWith('e')) {
+						return verb + 'd';
+					} else if (verb.endsWith('y') && !/[aeiou]y$/.test(verb)) {
+						return verb.slice(0, -1) + 'ied';
+					} else if (/[^aeiou][aeiou][^aeiou]$/.test(verb)) {
+						return verb + verb.slice(-1) + 'ed';
+					} else {
+						return verb + 'ed';
+					}
+				};
+				
+				switch (form) {
+					case "polite":
+						return `I ${baseVerb}`;
+					case "past":
+						return `I ${getPastForm(baseVerb)}`;
+					case "te":
+						return `...and ${baseVerb}`;
+					case "negative":
+						return `I don't ${baseVerb}`;
+					case "potential":
+						return `I can ${baseVerb}`;
+					case "passive":
+						return `is ${getPastForm(baseVerb)}`;
+					case "causative":
+						return `to make someone ${baseVerb}`;
+					case "causativePassive":
+						return `is made to ${baseVerb}`;
+					case "provisional":
+						return `if I ${baseVerb}`;
+					case "imperative":
+						return `${baseVerb.charAt(0).toUpperCase() + baseVerb.slice(1)}!`;
+					case "volitional":
+						return `let's ${baseVerb}`;
+					default:
+						return `to ${baseVerb}`;
+				}
+			}
+
 			// --- Conjugation Engine ---
 			function conjugate(verb, form) {
 				const { type, reading, dictForm } = verb;
@@ -446,6 +633,7 @@
 						case "potential": return base + "できる";
 						case "passive": return base + "される";
 						case "causative": return base + "させる";
+						case "causativePassive": return base + "させられる";
 						case "provisional": return base + "すれば";
 						case "imperative": return base + "しろ";
 						case "volitional": return base + "しよう";
@@ -463,6 +651,7 @@
 						case "potential": return "こられる";
 						case "passive": return "こられる";
 						case "causative": return "こさせる";
+						case "causativePassive": return "こさせられる";
 						case "provisional": return "くれば";
 						case "imperative": return "こい";
 						case "volitional": return "こよう";
@@ -481,6 +670,7 @@
 						case 'potential':   return base + 'れる';
 						case 'passive':     return base + 'れる';
 						case 'causative':   return base + 'させる';
+						case 'causativePassive': return base + 'させられる';
 						case 'imperative':  return base + 'い';
 						case 'volitional':  return base + 'ろう';
 						default: return dictForm;
@@ -497,6 +687,7 @@
 						case "potential": return kanjiBase + "られる";
 						case "passive": return kanjiBase + "られる";
 						case "causative": return kanjiBase + "させる";
+						case "causativePassive": return kanjiBase + "させられる";
 						case "provisional": return kanjiBase + "れば";
 						case "imperative": return kanjiBase + "ろ";
 						case "volitional": return kanjiBase + "よう";
@@ -534,6 +725,7 @@
 						case "potential": return kanjiBase + e.e + "る";
 						case "passive": return kanjiBase + e.a + "れる";
 						case "causative": return kanjiBase + e.a + "せる";
+						case "causativePassive": return kanjiBase + e.a + "せられる";
 						case "provisional": return kanjiBase + e.e + "ば";
 						case "imperative": return kanjiBase + e.e;
 						case "volitional": return kanjiBase + e.o + "う";
@@ -573,6 +765,12 @@
 					{ verb: { dictForm: 'する', reading: 'する', type: 'suru' }, form: 'negative', expected: 'しない' },
 					{ verb: { dictForm: '来る', reading: 'くる', type: 'kuru' }, form: 'potential', expected: 'こられる' },
 					{ verb: { dictForm: '買う', reading: 'かう', type: 'godan-u' }, form: 'volitional', expected: '買おう' },
+					
+					// Causative-passive tests
+					{ verb: { dictForm: '食べる', reading: 'たべる', type: 'ichidan' }, form: 'causativePassive', expected: '食べさせられる' },
+					{ verb: { dictForm: '読む', reading: 'よむ', type: 'godan-mu' }, form: 'causativePassive', expected: '読ませられる' },
+					{ verb: { dictForm: 'する', reading: 'する', type: 'suru' }, form: 'causativePassive', expected: 'させられる' },
+					{ verb: { dictForm: '来る', reading: 'くる', type: 'kuru' }, form: 'causativePassive', expected: 'こさせられる' },
 				];
 
 				let failures = 0;
